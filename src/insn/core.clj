@@ -119,7 +119,7 @@
   Annotation values are processed the same as in clojure.
   See: https://clojure.org/reference/datatypes#_java_annotation_support"
   [t]
-  (let [cls (str (or (:name t) (gensym "type")))
+  (let [cls (str (or (:name t) (gensym "insn_type")))
         cls (if (.contains cls ".")
               cls
               (str (munge (ns-name *ns*)) "." cls))
