@@ -66,7 +66,8 @@
         [decls args] (if (seq? (first args))
                        (split-with seq? args)
                        [(list args) nil])
-        [post] (util/optional map? args)]
+        [post more] (util/optional map? args)]
+    (assert (nil? more) (str "trailing defn data: " (pr-str (first more))))
     `(do
        (def ~fname (fn ~fname ~@decls))
        (doto #'~fname
@@ -77,5 +78,5 @@
 (defmacro defn-
   "Bytecode version of `clojure.core/defn-`. See `defn`."
   [fname & args]
-  (assert (symbol? fname) fname)
+  (assert (symbol? fname) (str "invalid defn- name: " (pr-str fname)))
   (list* `defn (vary-meta fname assoc :private true) args))
