@@ -123,7 +123,7 @@
         cls (if (.contains cls ".")
               cls
               (str (munge (ns-name *ns*)) "." cls))
-        flags (set (or (seq (:flags t)) *class-flags*))
+        flags (set (seq (:flags t *class-flags*)))
         concrete? (not (or (:interface flags)
                            (:abstract flags)))
         flags (if (:interface flags) (conj flags :abstract) flags)
@@ -141,7 +141,7 @@
     (binding [util/*this* this, util/*super* super]
 
       (doseq [f (:fields t)]
-        (let [flags (or (seq (:flags f)) *field-flags*)
+        (let [flags (:flags f *field-flags*)
               fv (.visitField cv (util/flags flags) (:name f)
                               (util/type-desc (:type f)) nil (:value f))]
           (ann/visit fv (:annotations f))
@@ -160,12 +160,12 @@
                 [flags desc init?]
                 (case mname
                   "<clinit>" [[:static], [:void] false]
-                  "<init>" [(or (seq (:flags m)) *init-flags*)
+                  "<init>" [(:flags m *init-flags*)
                             (if (= :void (last (:desc m)))
                               (:desc m)
                               (concat (:desc m) [:void]))
                             true]
-                  #_:else [(or (seq (:flags m)) *method-flags*)
+                  #_:else [(:flags m *method-flags*)
                            (or (:desc m) [:void])
                            false])
                 mv (.visitMethod cv (util/flags flags) mname
