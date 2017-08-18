@@ -1,5 +1,5 @@
-(defproject insn "0.1.1-SNAPSHOT"
-  :description "Functional Java bytecode generation for Clojure."
+(defproject insn "0.1.1"
+  :description "Functional JVM bytecode generation for Clojure."
   :url "https://github.com/jgpc42/insn"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -8,8 +8,8 @@
 
   :min-lein-version "2.0.0"
 
-  :aliases {"test" ["with-profile" "+test" "run" "-m" "insn.test"]
-            "test-all" ["do" "test," "with-profile" "+external-asm" "test"]}
+  :aliases {"run-test" ["with-profile" "+test" "run" "-m" "insn.test"]
+            "test" ["do" "run-test," "with-profile" "+external-asm" "run-test"]}
 
   :profiles
   {:external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
