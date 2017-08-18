@@ -203,7 +203,7 @@
   ([pred [x & more :as xs] default]
    (if (pred x)
      [x more]
-     [default xs])))
+     [default (seq xs)])))
 
 (defn special-desc
   "Return internal type string for the 'anewarray', 'checkcast',
