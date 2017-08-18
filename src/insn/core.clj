@@ -159,17 +159,19 @@
           (let [mname (util/method-name (:name m))
                 [flags desc init?]
                 (case mname
-                  "<clinit>" [[:static], [:void] false]
+                  "<clinit>" [[:static], "()V", false]
                   "<init>" [(:flags m *init-flags*)
-                            (if (= :void (last (:desc m)))
-                              (:desc m)
-                              (concat (:desc m) [:void]))
+                            (let [desc (util/method-desc (:desc m))]
+                              (if (.endsWith ^String desc "V")
+                                desc
+                                (util/method-desc (concat (:desc m) [:void]))))
                             true]
                   #_:else [(:flags m *method-flags*)
-                           (or (:desc m) [:void])
+                           (if (:desc m)
+                             (util/method-desc (:desc m))
+                             "()V")
                            false])
-                mv (.visitMethod cv (util/flags flags) mname
-                                 (util/method-desc desc) nil nil)
+                mv (.visitMethod cv (util/flags flags) mname desc nil nil)
                 emit (if (fn? (:emit m))
                        (:emit m)
                        (op/compile (:emit m)))]

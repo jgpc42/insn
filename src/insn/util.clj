@@ -177,10 +177,12 @@
 (defn method-desc
   "Return internal method descriptor string."
   [xs]
-  (let [[args ret] [(butlast xs) (last xs)]
-        args (map type-desc args)]
-    (str "(" (apply str args) ")"
-         (type-desc ret))))
+  (if (seq xs)
+    (let [[args ret] [(butlast xs) (last xs)]
+          args (map type-desc args)]
+      (str "(" (apply str args) ")"
+           (type-desc ret)))
+    "()V"))
 
 (defn method-name
   "Return a method name string."
