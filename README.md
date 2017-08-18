@@ -1,4 +1,22 @@
-# Insn
+[![Clojars Project](https://img.shields.io/clojars/v/insn.svg)](https://clojars.org/insn)
+
+### Dependency information
+
+Leiningen
+
+``` clojure
+[insn "0.1.0"]
+```
+
+Maven
+
+``` xml
+<dependency>
+  <groupId>insn</groupId>
+  <artifactId>insn</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
 
 ### What is it?
 
@@ -61,7 +79,7 @@ If you are evaluating the code snippets above in the REPL, you can also just do:
 
 Since, by default, `define` loads the class using Clojure's own `DynamicClassLoader`, meaning the class will be *first class* to subsequent evaluations in the running Clojure environment.
 
-For more, see the additional examples below, or the [docs](docs). The [tests](test/insn/core_test.clj) are also a good reference.
+For more, see the additional examples below, or the [docs][doc]. The [tests][test] are also a good reference.
 
 ### Examples
 
@@ -119,12 +137,12 @@ The `insn.clojure` namespace provides helpers to create Clojure fns and vars. Th
 (map my-inc (range 3)) ;; => (1 2 3)
 ```
 
-Since the argument list is adorned with the proper metadata, the above generates a fn that implements Clojure's `clojure.lang.IFn$LL` interface (indicating primitive support, taking and returning a long), and will not box the argument or return type when appropriate.
+Since the argument list is adorned with the proper metadata, the above generates a fn that implements Clojure's `clojure.lang.IFn$LL` interface (indicating primitive support, taking and returning a `long`), and will not box the argument or return type when appropriate.
 
 ```clojure
 (set! *unchecked-math* :warn-on-boxed)
 
-(unchecked-inc (my-inc 42)) ;; => 44
+(inc (my-inc 42)) ;; => 44
 ```
 
 Note that it helps to have some understanding of how Clojure compiles fns before using these. To learn more, I would suggest using the excellent [no.disassemble][nodis] library to disassemble some Clojure fns.
@@ -233,7 +251,9 @@ The name comes from ASM's [MethodVisitor][mvis] class. All instruction-writing m
 
 [anns]:  https://clojure.org/reference/datatypes#_java_annotation_support
 [asm]:   http://asm.ow2.org
+[doc]:   https://jgpc42.github.io/insn/doc
 [hcbm]:  https://gist.github.com/jgpc42/97fdcf12d4a2977e15b23001f0a612db
 [nodis]: https://github.com/gtrak/no.disassemble
 [mvis]:  http://asm.ow2.org/asm50/javadoc/user/org/objectweb/asm/MethodVisitor.html
 [pdf]:   http://download.forge.objectweb.org/asm/asm4-guide.pdf
+[test]:  https://github.com/jgpc42/insn/blob/v0.1.0/test/insn/core_test.clj
