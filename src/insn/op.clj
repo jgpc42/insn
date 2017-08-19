@@ -55,7 +55,7 @@
   class `cls`."
   [v cls fname ftype]
   (.visitFieldInsn v &op (util/class-desc cls)
-                   fname (util/type-desc ftype)))
+                   (name fname) (util/type-desc ftype)))
 
 (defops [iinc]
   "Increment int local variable index `idx` by amount `n`."
