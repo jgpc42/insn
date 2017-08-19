@@ -1,6 +1,5 @@
 (ns insn.core
   "Simple JVM bytecode generation."
-  (:refer-clojure :exclude [type])
   (:require [insn.util :as util]
             [insn.annotation :as ann]
             [insn.op :as op]
