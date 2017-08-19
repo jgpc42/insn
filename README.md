@@ -172,7 +172,7 @@ Let's say we want a more performant integer array `hashCode` implementation in C
    [:ldc2 0] [:lreturn]])                      ;; return 0L
 ```
 
-By my [benchmarks][hcbm], this is about 25% faster than the optimized Clojure equivalent, on par with Java. The reason likely being the additional `l2i` and `i2l` cast instructions at every step. An `int` is required at each iteration to correctly update the hash value and Clojure's `loop` can only maintain `long`s.
+By my [benchmarks][hcbm], this is about 25% faster than the optimized Clojure equivalent, on par with Java. The reason likely being the additional `l2i` and `i2l` cast instructions at every step of the Clojure version. An `int` is required at each iteration to correctly update the hash value and Clojure's `loop` can only maintain `long`s.
 
 #### Annotations
 
@@ -189,6 +189,12 @@ Just like classes and members, annotations are simply maps. They can be specifie
 ```
 
 Annotations values are processed exactly the same way as in [Clojure][anns].
+
+### Loading constant numbers
+
+When you use `42` or `42.0` in Clojure, you are (in general) using instances of `Long` and `Double`, respectively. However, the `:ldc` instruction will assume you meant to load a primitive `int` or `float` value when said values are used with it. This is to alleviate having to manually cast numbers when `int`s and `float`s are required, like `[:ldc (int 42)]`, which would be tedious and error-prone.
+
+Insn provides the `:ldc2` instruction instead, with the sole purpose of loading constant `long` and `double` values. `:ldc` is used to load all other constant values.
 
 ### Bytecode version
 
@@ -234,6 +240,12 @@ Simply add a dependency on the ASM version you wish to use to your project, for 
 ```
 
 Alternatively, you can define the `insn.objectweb-asm` property. For leiningen add `"-Dinsn.objectweb-asm"` to your `:jvm-opts`.
+
+### Running the tests
+
+```bash
+lein test
+```
 
 ### Similar libraries
 
