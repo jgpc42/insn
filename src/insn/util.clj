@@ -69,7 +69,9 @@
    :synthetic Opcodes/ACC_SYNTHETIC
    :transient Opcodes/ACC_TRANSIENT
    :varargs Opcodes/ACC_VARARGS
-   :volatile Opcodes/ACC_VOLATILE})
+   :volatile Opcodes/ACC_VOLATILE
+   :mandated (try (.getInt (.getField Opcodes "ACC_MANDATED") nil)
+                  (catch NoSuchFieldException _))})
 
 (def ^:no-doc handle-keyword?
   {:getfield Opcodes/H_GETFIELD
