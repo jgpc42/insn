@@ -15,8 +15,10 @@
         [vsig more] (filter #(some #{'&} %) (map first decls))
         nvargs (dec (count vsig))
         vparam (second (split-with #(not= % '&) vsig))
-        vprims (->> vsig (map (comp :tag meta)) (filter '#{long double}) seq)]
+        vprims (->> vsig (map (comp :tag meta)) (filter '#{long double}) seq)
+        arities (map (comp count first) decls)]
     (check (nil? more) "can't have multiple variadic overloads")
+    (check (apply distinct? arities) "can't have two overloads with same arity")
     (when vsig
       (check (not= (count vparam) 1) "missing variadic parameter after '&'")
       (check (= (count vparam) 2) "invalid extra variadic parameter")
