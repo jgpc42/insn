@@ -29,6 +29,7 @@
   Compiler$FnMethod
   DynamicClassLoader
   Keyword
+  RestFn
   RT
   Sequential
   Symbol]

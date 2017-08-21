@@ -1,6 +1,7 @@
 (ns demo.core
   (:require [insn.clojure :as bc]
-            [insn.op :as op]))
+            [insn.op :as op])
+  (:import [clojure.lang RT ISeq]))
 
 (def ^{:arglists '(^long [^long x])}
   incr (bc/fn ^long [^long x]
@@ -20,7 +21,28 @@
    [[:lload 1]
     [:lload 3]
     [:ladd]
-    [:lreturn]]))
+    [:lreturn]])
+  ([a b & more]
+   [[:aload 0]
+    [:aload 1] [:invokestatic RT "longCast" [Object :long]]
+    [:aload 2] [:invokestatic RT "longCast" [Object :long]]
+    [:invokevirtual :this "invokePrim" [:long :long :long]]
+    [:lstore 4]
+    [:mark :LOOP]
+    [:aload 3] [:invokestatic RT "seq" [Object ISeq]]
+    [:ifnull :DONE]
+    [:aload 0]
+    [:lload 4]
+    [:aload 3] [:invokestatic RT "first" [Object Object]]
+    [:invokestatic RT "longCast" [Object :long]]
+    [:invokevirtual :this "invokePrim" [:long :long :long]]
+    [:lstore 4]
+    [:aload 3] [:invokestatic RT "next" [Object ISeq]]
+    [:astore 3] [:goto :LOOP]
+    [:mark :DONE]
+    [:lload 4]
+    [:invokestatic Long "valueOf" [:long Long]]
+    [:areturn]]))
 
 (bc/defn calc
   "Calculate some formula of `x`. If `y` is null, do nothing."

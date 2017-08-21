@@ -19,7 +19,11 @@
     (is (= [43] (map demo/incr [42])))
 
     (testing "multi-arity"
-      (is (= [42] (map demo/add [42]))))))
+      (is (= [42] (map demo/add [42])))))
+
+  (testing "variadic"
+    (is (= 3 (demo/add 0 1 2)))
+    (is (= 45 (apply demo/add (range 10))))))
 
 (set! *unchecked-math* false)
 (set! *warn-on-reflection* false)
