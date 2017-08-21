@@ -5,7 +5,7 @@
 Leiningen
 
 ``` clojure
-[insn "0.1.1"]
+[insn "0.1.2"]
 ```
 
 Maven
@@ -14,7 +14,7 @@ Maven
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
 </dependency>
 ```
 
@@ -268,4 +268,4 @@ The name comes from ASM's [MethodVisitor][mvis] class. All instruction-writing m
 [nodis]: https://github.com/gtrak/no.disassemble
 [mvis]:  http://asm.ow2.org/asm50/javadoc/user/org/objectweb/asm/MethodVisitor.html
 [pdf]:   http://download.forge.objectweb.org/asm/asm4-guide.pdf
-[test]:  https://github.com/jgpc42/insn/blob/v0.1.1/test/insn/core_test.clj
+[test]:  https://github.com/jgpc42/insn/blob/v0.1.2/test/insn/core_test.clj
