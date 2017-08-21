@@ -141,8 +141,13 @@
 
       (doseq [f (:fields t)]
         (let [flags (:flags f *field-flags*)
-              fv (.visitField cv (util/flags flags) (:name f)
-                              (util/type-desc (:type f)) nil (:value f))]
+              ftype (util/type-desc (:type f))
+              fval (when-let [v (:value f)]
+                     (case ftype
+                       "I" (int v), "J" (long v)
+                       "F" (float v), "D" (double v)
+                       v))
+              fv (.visitField cv (util/flags flags) (name (:name f)) ftype nil fval)]
           (ann/visit fv (:annotations f))
           (.visitEnd fv)))
 
