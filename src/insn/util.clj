@@ -164,12 +164,13 @@
   [x]
   (if (instance? Label x)
     x
-    (do (assert (not= ::unbound *labels*)
-                "label-from only valid while emitting method bytecode")
-        (or (get @*labels* x)
-            (let [lbl (label)]
-              (swap! *labels* assoc x lbl)
-              lbl)))))
+    (if (= ::unbound *labels*)
+      (throw (IllegalStateException.
+              "auto-generated labels only available when emitting method bytecode"))
+      (or (get @*labels* x)
+          (let [lbl (label)]
+            (swap! *labels* assoc x lbl)
+            lbl)))))
 
 (defn labels
   "Returns a sequence of `n` (or infinite) new asm labels."

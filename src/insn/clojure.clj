@@ -6,6 +6,10 @@
             [insn.util :as util])
   (:load "imports"))
 
+(definline ^:private check [expr msg]
+  `(when-not ~expr
+     (throw (clojure.lang.Util/runtimeException ~msg))))
+
 (defmacro fn
   "Bytecode version of `clojure.core/fn`. The optional fn name and
   argument vector(s) are only for documentation and primitive type
@@ -67,7 +71,7 @@
                        (split-with seq? args)
                        [(list args) nil])
         [post more] (util/optional map? args)]
-    (assert (nil? more) (str "trailing defn data: " (pr-str (first more))))
+    (check (nil? more) (str "trailing defn data: " (pr-str (first more))))
     `(do
        (def ~fname (fn ~fname ~@decls))
        (doto #'~fname
@@ -78,5 +82,5 @@
 (defmacro defn-
   "Bytecode version of `clojure.core/defn-`. See `defn`."
   [fname & args]
-  (assert (symbol? fname) (str "invalid defn- name: " (pr-str fname)))
+  (check (symbol? fname) (str "invalid defn- name: " (pr-str fname)))
   (list* `defn (vary-meta fname assoc :private true) args))
