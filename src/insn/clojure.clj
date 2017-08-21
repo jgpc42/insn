@@ -63,6 +63,9 @@
 (defmacro defn
   "Bytecode version of `clojure.core/defn`. See `fn`.
 
+  If the fn name metadata or an attr-map contains :insn/version, it
+  specifies the bytecode version to generate.
+
   Note that the pre/post condition map is not supported."
   [fname & args]
   (let [[doc args] (util/optional string? args)
@@ -70,10 +73,13 @@
         [decls args] (if (seq? (first args))
                        (split-with seq? args)
                        [(list args) nil])
-        [post more] (util/optional map? args)]
+        [post more] (util/optional map? args)
+        version (some identity (map :insn/version [(meta fname) pre post]))]
     (check (nil? more) (str "trailing defn data: " (pr-str (first more))))
     `(do
-       (def ~fname (fn ~fname ~@decls))
+       (def ~fname (binding [~@(when version
+                                 `[[core/*bytecode-version* ~version]])]
+                     (fn ~fname ~@decls)))
        (doto #'~fname
          (alter-meta! merge {:arglists '~(map first decls)
                              :doc ~doc}
