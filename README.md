@@ -50,7 +50,7 @@ The class is specified as a map. The class fields and methods are sequences of m
                      [:lreturn]]}]})
 ```
 
-Above, we described in data exactly the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading the first three chapters of the excellent tutorial pdf from the ASM [site][pdf].
+Above, we described in data exactly the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading chapter 3 of the excellent tutorial pdf from the ASM [site][pdf].
 
 Now to write the bytecode.
 
@@ -188,7 +188,7 @@ Just like classes and members, annotations are simply maps. They can be specifie
    :parameter-annotations {0 anns}})
 ```
 
-Annotations values are processed exactly the same way as in [Clojure][anns].
+Annotation values are processed exactly the same way as in [Clojure][anns].
 
 ### Loading constant numbers
 
