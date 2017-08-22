@@ -12,6 +12,7 @@
             "test" ["do" "run-test," "with-profile" "+external-asm" "run-test"]}
 
   :profiles
-  {:external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
+  {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha17"]]}
+   :external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
                   :jvm-opts ["-Dinsn.objectweb-asm"]}
    :repl {:source-paths ["dev"]}})
