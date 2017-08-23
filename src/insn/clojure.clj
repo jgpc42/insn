@@ -52,7 +52,7 @@
                          [sig (symbol iface)]))
         methods (clojure.core/fn [[sig body]]
                   (let [vararg? (= sig vsig)
-                        nargs (if vararg? (dec (count sig)) (count sig))
+                        nargs (long (if vararg? (dec (count sig)) (count sig)))
                         objs (vec (repeat (inc nargs) `Object))
                         prims (when-let [iface (get ifaces sig)]
                                 (mapv {\L :long, \D :double, \O `Object}
