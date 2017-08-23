@@ -69,7 +69,9 @@
                                        ~@(condp = arg
                                            :long [[:invokestatic `RT "longCast" [`Object :long]]]
                                            :double [[:invokestatic `RT "doubleCast" [`Object :double]]]
-                                           nil)])
+                                           nil)
+                                       [:ldc nil]
+                                       [:astore ~i]])
                                    (next (range))
                                    (butlast prims))
                                 [:invokevirtual :this "invokePrim" ~prims]
