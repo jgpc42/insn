@@ -1,4 +1,5 @@
 [![Clojars Project](https://img.shields.io/clojars/v/insn.svg)](https://clojars.org/insn)
+[![Travis CI](https://travis-ci.org/jgpc42/insn.svg?branch=master)](https://travis-ci.org/jgpc42/insn)
 
 ### Dependency information
 
