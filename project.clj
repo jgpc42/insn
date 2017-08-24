@@ -9,7 +9,13 @@
   :min-lein-version "2.0.0"
 
   :aliases {"run-test" ["with-profile" "+test" "run" "-m" "insn.test"]
-            "test" ["do" "run-test," "with-profile" "+external-asm" "run-test"]}
+            "run-test-compiled" ["with-profile" "+test"
+                                 "do" "compile" "insn.test,"
+                                 "run" "-m" "insn.test," "clean"]
+            "test" ["do" "run-test," "run-test-compiled,"
+                    "with-profile" "+external-asm" "run-test,"
+                    "with-profile" "+external-asm" "run-test-compiled"]
+            "test-all" ["do" "test," "with-profile" "+1.9" "test"]}
 
   :profiles
   {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha17"]]}

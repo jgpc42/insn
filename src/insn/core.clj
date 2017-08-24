@@ -1,10 +1,11 @@
-(ns insn.core
+(when *ns* (require '[insn.namespace :as ns]))
+
+(ns/with-imports insn.core
   "Simple JVM bytecode generation."
   (:require [insn.util :as util]
             [insn.annotation :as ann]
             [insn.op :as op]
-            [clojure.java.io :as io])
-  (:load "imports"))
+            [clojure.java.io :as io]))
 
 (def ^{:doc "The class/interface flags to use if unspecified."
        :dynamic true}

@@ -1,8 +1,9 @@
-(ns insn.util
+(when *ns* (require '[insn.namespace :as ns]))
+
+(ns/with-imports insn.util
   "Bytecode and ASM utilities."
   (:refer-clojure :exclude [sort type])
-  (:require [clojure.set :as set])
-  (:load "imports"))
+  (:require [clojure.set :as set]))
 
 (defprotocol LabelArray
   (label-array [x]

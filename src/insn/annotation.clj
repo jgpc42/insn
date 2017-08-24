@@ -1,7 +1,8 @@
-(ns ^:no-doc insn.annotation
+(when *ns* (require '[insn.namespace :as ns]))
+
+(ns/with-imports ^:no-doc insn.annotation
   "Annotation visitor fns."
-  (:require [insn.util :as util])
-  (:load "imports"))
+  (:require [insn.util :as util]))
 
 (declare visit*)
 
