@@ -8,7 +8,8 @@
 (defmethod test/report :begin-test-ns [m])
 
 (defmethod test/report :summary [m]
-  (when-not (zero? (+ (:fail m) (:error m)))
+  (when-not (and (pos? (:test m))
+                 (zero? (+ (:fail m) (:error m))))
     (throw (ex-info "tests failed" m))))
 
 (defn -main []
