@@ -278,6 +278,6 @@
                                    [:local-variable "this" :this :BEGIN :END 0]
                                    [:local-variable "i" :int :BEGIN :END 1]]}]}
                 core/visit
-                (core/write (System/getProperty "java.io.tmpdir"))
+                #_(core/write (System/getProperty "java.io.tmpdir"))
                 core/new-instance)]
     (is (= 43 (.inc obj 42)))))
