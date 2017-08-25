@@ -65,4 +65,8 @@
   (testing "type seqs"
     (is (= "[I" (util/type-desc (list :int))))
     (is (= "[[Ljava/lang/Long;"
-           (util/type-desc [[Long]])))))
+           (util/type-desc [[Long]]))))
+
+  (testing "special keywords"
+    (binding [util/*this* "Foo"]
+      (is (= "LFoo;" (util/type-desc :this))))))
