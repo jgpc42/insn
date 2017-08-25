@@ -3,4 +3,5 @@
 .nrepl-*
 pom.xml
 pom.xml.asc
+dev/codox-patch.clj
 target/
