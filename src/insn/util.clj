@@ -269,7 +269,9 @@
   Class
   (type-desc [c] (type-desc (.getName c)))
   Keyword
-  (type-desc [k] (check-valid "type descriptor" type-keyword? k))
+  (type-desc [k]
+    (or (some-> (class-keyword? k) deref type-desc)
+        (check-valid "type descriptor" type-keyword? k)))
   Sequential
   (type-desc [s] (str "[" (type-desc (first s))))
   String
