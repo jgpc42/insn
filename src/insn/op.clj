@@ -224,6 +224,21 @@
     :else
     (throw (IllegalArgumentException. "ldc2 requires a number"))))
 
+(defn line-number
+  "Add a reference to source line `n` starting at `label`. If the label
+  has not yet been visited (marked), an error will be thrown."
+  [^MethodVisitor v ^long n label]
+  (.visitLineNumber v n (util/label-from label)))
+
+(defn local-variable
+  "Add a reference to a local variable `vname` of type `vtype` with
+  index number `idx`. The variable scope is demarcated by labels `start`
+  and `end`. If either label has not yet been visited (marked), an
+  error will be thrown."
+  [^MethodVisitor v vname vtype start end idx]
+  (.visitLocalVariable v (name vname) (util/type-desc vtype) nil
+                       (util/label-from start) (util/label-from end) idx))
+
 (defn lookupswitch*
   "Jump to a corresponding label given in `tlabels` by an int table
   lookup of the pre-sorted `tkeys` (as per `zipmap`.) If no mapping is
@@ -267,6 +282,8 @@
 
 (def-op-method anew)
 (def-op-method ldc2)
+(def-op-method line-number)
+(def-op-method local-variable)
 (def-op-method lookupswitch)
 (def-op-method mark)
 (def-op-method pop1)

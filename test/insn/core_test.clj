@@ -265,3 +265,19 @@
                                [:invokedynamic "inc" [:int :int] [:invokestatic :this "bsm" bdesc]]
                                [:ireturn]]}])]
     (is (= 43 (.go obj 42)))))
+
+(deftest test-debug-info
+  (let [obj (-> {:methods [{:name "inc", :desc [:int :int]
+                            :emit [[:mark :BEGIN]
+                                   [:line-number 1 :BEGIN]
+                                   [:iload 1]
+                                   [:ldc 1]
+                                   [:iadd]
+                                   [:ireturn]
+                                   [:mark :END]
+                                   [:local-variable "this" :this :BEGIN :END 0]
+                                   [:local-variable "i" :int :BEGIN :END 1]]}]}
+                core/visit
+                (core/write (System/getProperty "java.io.tmpdir"))
+                core/new-instance)]
+    (is (= 43 (.inc obj 42)))))
