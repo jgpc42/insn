@@ -1,4 +1,4 @@
-(defproject insn "0.1.3-SNAPSHOT"
+(defproject insn "0.1.3"
   :description "Functional JVM bytecode generation for Clojure."
   :url "https://github.com/jgpc42/insn"
   :license {:name "Eclipse Public License"
@@ -18,7 +18,7 @@
             "test-all" ["do" "test," "with-profile" "+1.9" "test"]}
 
   :profiles
-  {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha17"]]}
+  {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha19"]]}
    :external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
                   :jvm-opts ["-Dinsn.objectweb-asm"]}
    :repl {:source-paths ["dev"]}})

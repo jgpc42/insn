@@ -6,7 +6,7 @@
 Leiningen
 
 ``` clojure
-[insn "0.1.2"]
+[insn "0.1.3"]
 ```
 
 Maven
@@ -15,7 +15,7 @@ Maven
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
