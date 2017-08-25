@@ -1,6 +1,5 @@
 (ns insn.test
   (:require [clojure.test :as test]
-            [clojure.java.io :as io]
             [insn.core :as insn]
             insn.core-test
             insn.clojure-test

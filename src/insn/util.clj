@@ -2,8 +2,7 @@
 
 (ns/with-imports insn.util
   "Bytecode and ASM utilities."
-  (:refer-clojure :exclude [sort type])
-  (:require [clojure.set :as set]))
+  (:refer-clojure :exclude [sort type]))
 
 (defprotocol LabelArray
   (label-array [x]
