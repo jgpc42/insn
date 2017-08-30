@@ -281,3 +281,27 @@
                 #_(core/write (System/getProperty "java.io.tmpdir"))
                 core/new-instance)]
     (is (= 43 (.inc obj 42)))))
+
+(deftest test-new-instance
+  (let [put (fn [s]
+              [[:aload 0]
+               [:dup]
+               [:invokespecial :super :init [:void]]
+               [:ldc s]
+               [:putfield :this "s" String]
+               [:return]])
+        type (core/visit
+              {:fields [{:name "s", :type String}]
+               :methods [{:name :init, :desc [:void], :emit (put "a")}
+                         {:name :init, :desc [Object :void], :emit (put "b")}
+                         {:name :init, :desc [String :long :void], :emit (put "c")}
+                         {:name :init, :desc [String Long :void], :emit (put "d")}
+                         {:name :init, :desc [Object Object :void], :emit (put "e")}
+                         {:name :toString, :desc [String]
+                          :emit [[:aload 0]
+                                 [:getfield :this "s" String]
+                                 [:areturn]]}]})]
+    (is (= "a" (str (core/new-instance type))))
+    (is (= "b" (str (core/new-instance type "foo"))))
+    (is (= "d" (str (core/new-instance type "bar" 42))))
+    (is (= "e" (str (core/new-instance type "baz" (int 42)))))))

@@ -225,9 +225,31 @@
    (load-type cl (ensure-visited t))))
 
 (defn new-instance
-  "Define and return an instance of the generated class."
-  [t]
-  (-> t define .newInstance))
+  "Define and return an instance of the generated class. The
+  non-abstract type must define a public constructor that accepts
+  either no arguments, or if `args` is provided, the given arguments.
+
+  The argument types must exactly match (as per `clojure.core/class`)
+  a defined constructor, or a constructor that accepts the same amount
+  of `Object`s.
+
+  Note that this means constructors that take primitives are not
+  supported by this fn."
+  ([t]
+   (-> t define .newInstance))
+  ([t & args]
+   (let [klass (define t)
+         make (partial into-array Class)
+         ctor (try
+                (.getConstructor klass (make (map class args)))
+                (catch NoSuchMethodException _
+                  (let [objs (make (repeat (count args) Object))]
+                    (try
+                      (.getConstructor klass objs)
+                      (catch NoSuchMethodException e
+                        (throw (ex-info "no constructor found for arguments"
+                                        {:args args} e)))))))]
+     (.newInstance ctor (object-array args)))))
 
 (defn write
   "Takes a map specifying a classes' :name and :bytes. Writes the class
