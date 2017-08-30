@@ -7,9 +7,9 @@
             [insn.op :as op]
             [insn.util :as util]))
 
-(definline ^:private check [expr msg]
+(defmacro ^:private check [expr msg]
   `(when-not ~expr
-     (throw (clojure.lang.Util/runtimeException ~msg))))
+     (throw (RuntimeException. ~msg))))
 
 (clojure.core/defn- fn-decls [args]
   (let [decls (if (seq? (first args)), args [args])
