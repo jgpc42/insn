@@ -15,10 +15,13 @@
             "test" ["do" "run-test," "run-test-compiled,"
                     "with-profile" "+external-asm" "run-test,"
                     "with-profile" "+external-asm" "run-test-compiled"]
-            "test-all" ["do" "test," "with-profile" "+1.9" "test"]}
+            "test-all" ["do" "test,"
+                        "with-profile" "+1.9" "test,"
+                        "with-profile" "+1.7" "test,"]}
 
   :profiles
-  {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha19"]]}
+  {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
+   :1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha19"]]}
    :external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
                   :jvm-opts ["-Dinsn.objectweb-asm"]}
    :repl {:source-paths ["dev"]}})
