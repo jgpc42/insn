@@ -5,7 +5,8 @@
   (:require [insn.util :as util]
             [insn.annotation :as ann]
             [insn.op :as op]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import [java.lang.reflect Constructor]))
 
 (def ^{:doc "The class/interface flags to use if unspecified."
        :dynamic true}
@@ -229,26 +230,32 @@
   non-abstract type must define a public constructor that accepts
   either no arguments, or if `args` is provided, the given arguments.
 
-  The argument types must exactly match (as per `clojure.core/class`)
-  a defined constructor, or a constructor that accepts the same amount
-  of `Object`s.
+  If the given argument count matches a constructor with a distinct
+  arity, that one is invoked. In this case, constructors that take
+  primitives are supported via reflection unboxing.
 
-  Note that this means constructors that take primitives are not
-  supported by this fn."
+  Otherwise, the argument types must exactly match (as per
+  `clojure.core/class`) a defined constructor, or a constructor that
+  accepts the same amount of `Object`s."
   ([t]
    (-> t define .newInstance))
   ([t & args]
    (let [klass (define t)
          make (partial into-array Class)
-         ctor (try
-                (.getConstructor klass (make (map class args)))
-                (catch NoSuchMethodException _
-                  (let [objs (make (repeat (count args) Object))]
-                    (try
-                      (.getConstructor klass objs)
-                      (catch NoSuchMethodException e
-                        (throw (ex-info "no constructor found for arguments"
-                                        {:args args} e)))))))]
+         ctors (for [^Constructor c (.getConstructors klass)
+                     :when (== (count args) (alength (.getParameterTypes c)))]
+                 c)
+         ctor (if (== (count ctors) 1)
+                (first ctors)
+                (try
+                  (.getConstructor klass (make (map class args)))
+                  (catch NoSuchMethodException e
+                    (let [objs (make (repeat (count args) Object))]
+                      (try
+                        (.getConstructor klass objs)
+                        (catch NoSuchMethodException _
+                          (throw (ex-info "no constructor found for arguments"
+                                          {:args args} e))))))))]
      (.newInstance ctor (object-array args)))))
 
 (defn write

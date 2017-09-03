@@ -296,7 +296,9 @@
                          {:name :init, :desc [Object :void], :emit (put "b")}
                          {:name :init, :desc [String :long :void], :emit (put "c")}
                          {:name :init, :desc [String Long :void], :emit (put "d")}
-                         {:name :init, :desc [Object Object :void], :emit (put "e")}
+                         {:name :init, :desc [String :int :void], :emit (put "e")}
+                         {:name :init, :desc [Object Object :void], :emit (put "f")}
+                         {:name :init, :desc [:long :long :long :void], :emit (put "g")}
                          {:name :toString, :desc [String]
                           :emit [[:aload 0]
                                  [:getfield :this "s" String]
@@ -304,4 +306,5 @@
     (is (= "a" (str (core/new-instance type))))
     (is (= "b" (str (core/new-instance type "foo"))))
     (is (= "d" (str (core/new-instance type "bar" 42))))
-    (is (= "e" (str (core/new-instance type "baz" (int 42)))))))
+    (is (= "f" (str (core/new-instance type "baz" (int 42)))))
+    (is (= "g" (str (core/new-instance type 1 (int 2) 3))))))
