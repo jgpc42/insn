@@ -35,6 +35,46 @@
 
     decls))
 
+(clojure.core/defn- fn-methods [sig body]
+  (let [vararg? (some #{'&} sig)
+        nargs (long (if vararg? (dec (count sig)) (count sig)))
+        objs (vec (repeat (inc nargs) `Object))
+        tag #(-> % meta :tag ('{long :long, double :double} `Object))
+        prims (and (not vararg?)
+                   (conj (mapv tag sig) (tag sig)))
+        body (if (vector? body) `(op/compile ~body) body)]
+    (cond
+      prims
+      [{:name "invokePrim", :desc prims, :emit body}
+       {:name "invoke", :desc objs
+        :emit `[[:aload 0]
+                ~@(mapcat
+                   (clojure.core/fn [i arg]
+                     `[[:aload ~i]
+                       ~@(condp = arg
+                           :long [[:invokestatic `RT "longCast" [`Object :long]]]
+                           :double [[:invokestatic `RT "doubleCast" [`Object :double]]]
+                           nil)
+                       [:ldc nil]
+                       [:astore ~i]])
+                   (next (range))
+                   (butlast prims))
+                [:invokevirtual :this "invokePrim" ~prims]
+                ~@(condp = (last prims)
+                    :long [[:invokestatic `Long "valueOf" [:long `Long]]]
+                    :double [[:invokestatic `Double "valueOf" [:double `Double]]]
+                    nil)
+                [:areturn]]}]
+      vararg?
+      [{:name "getRequiredArity", :desc [:int]
+        :emit `[[:ldc ~(dec nargs)]
+                [:ireturn]]}
+       {:name "doInvoke", :desc objs, :emit body}]
+      :else
+      [{:name "invoke", :desc objs, :emit body}])))
+
+;;;
+
 (defmacro fn
   "Bytecode version of `clojure.core/fn`. The optional fn name and
   argument vector(s) are only for documentation, primitive type
@@ -43,60 +83,21 @@
   The fn body expressions are replaced by a single expression that
   should evaluate to a fn that takes an ASM MethodVisitor. As a
   shortcut, if the compile-time type of the body is a vector, it will be
-  compiled via `op/compile`."
+  compiled via `insn.op/compile`."
   [& args]
   (let [[fname args] (util/optional symbol? args 'insn-fn)
         decls (fn-decls args)
-        vsig (first (filter #(some #{'&} %) (map first decls)))
-        super (if vsig `RestFn `AFunction)
-        ifaces (reduce conj {}
-                       (for [[sig] decls
-                             :when (not= sig vsig)
-                             :let [iface (Compiler$FnMethod/primInterface sig)]
-                             :when iface]
-                         [sig (symbol iface)]))
-        methods (clojure.core/fn [[sig body]]
-                  (let [vararg? (= sig vsig)
-                        nargs (long (if vararg? (dec (count sig)) (count sig)))
-                        objs (vec (repeat (inc nargs) `Object))
-                        prims (when-let [iface (get ifaces sig)]
-                                (mapv {\L :long, \D :double, \O `Object}
-                                      (last (.split (str iface) "\\$"))))
-                        body (if (vector? body) `(op/compile ~body) body)]
-                    (cond
-                      prims
-                      [{:name "invokePrim", :desc prims, :emit body}
-                       {:name "invoke", :desc objs
-                        :emit `[[:aload 0]
-                                ~@(mapcat
-                                   (clojure.core/fn [i arg]
-                                     `[[:aload ~i]
-                                       ~@(condp = arg
-                                           :long [[:invokestatic `RT "longCast" [`Object :long]]]
-                                           :double [[:invokestatic `RT "doubleCast" [`Object :double]]]
-                                           nil)
-                                       [:ldc nil]
-                                       [:astore ~i]])
-                                   (next (range))
-                                   (butlast prims))
-                                [:invokevirtual :this "invokePrim" ~prims]
-                                ~@(condp = (last prims)
-                                    :long [[:invokestatic `Long "valueOf" [:long `Long]]]
-                                    :double [[:invokestatic `Double "valueOf" [:double `Double]]]
-                                    nil)
-                                [:areturn]]}]
-                      vararg?
-                      [{:name "getRequiredArity", :desc [:int]
-                        :emit `[[:ldc ~(dec nargs)]
-                                [:ireturn]]}
-                       {:name "doInvoke", :desc objs, :emit body}]
-                      :else
-                      [{:name "invoke", :desc objs, :emit body}])))]
+        sigs (map first decls)
+        super (if (some (partial some #{'&}) sigs) `RestFn `AFunction)
+        ifaces (for [sig sigs
+                     :let [iface (Compiler$FnMethod/primInterface sig)]
+                     :when iface]
+                 (symbol iface))]
     `(core/new-instance
       {:name '~(gensym fname)
        :super ~super
-       :interfaces ~(vec (vals ifaces))
-       :methods [~@(mapcat methods decls)]})))
+       :interfaces ~(vec ifaces)
+       :methods [~@(mapcat (partial apply fn-methods) decls)]})))
 
 (defmacro defn
   "Bytecode version of `clojure.core/defn`. See `fn`.

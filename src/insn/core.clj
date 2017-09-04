@@ -30,6 +30,8 @@
 
 ;;;
 
+(declare visit-field visit-method)
+
 (defn visit
   "Visit the provided type map and its members to generate the class
   bytecode. Returns a map of the classes' :name and :bytes. Options:
@@ -138,64 +140,72 @@
                  ClassWriter/COMPUTE_MAXS)
         cv (doto (ClassWriter. wflags)
              (.visit version (util/flags flags) this nil
-                     super (into-array String ifaces)))]
-    (binding [util/*this* this, util/*super* super]
+                     super (into-array String ifaces)))
 
-      (doseq [f (:fields t)]
-        (let [flags (:flags f *field-flags*)
-              ftype (util/type-desc (:type f))
-              fval (when-let [v (:value f)]
-                     (case ftype
-                       "I" (int v), "J" (long v)
-                       "F" (float v), "D" (double v)
-                       v))
-              fv (.visitField cv (util/flags flags) (name (:name f)) ftype nil fval)]
-          (ann/visit fv (:annotations f))
-          (.visitEnd fv)))
-
-      (loop [[m & ms] (:methods t)
-             ctor? false]
-        (if (nil? m)
-          (when (and concrete? (not ctor?))
-            (recur [{:name :init
+        ctor? #(= "<init>" (util/method-name (:name %)))
+        t (if (or (not concrete?) (some ctor? (:methods t)))
+            t
+            (update t :methods conj
+                    {:name :init
                      :emit [[:aload 0]
                             [:invokespecial :super :init [:void]]
-                            [:return]]}]
-                   true))
-          (let [mname (util/method-name (:name m))
-                [flags desc init?]
-                (case mname
-                  "<clinit>" [[:static], "()V", false]
-                  "<init>" [(:flags m *init-flags*)
-                            (let [desc (util/method-desc (:desc m))]
-                              (if (.endsWith ^String desc "V")
-                                desc
-                                (util/method-desc (concat (:desc m) [:void]))))
-                            true]
-                  #_:else [(:flags m *method-flags*)
-                           (if (:desc m)
-                             (util/method-desc (:desc m))
-                             "()V")
-                           false])
-                mv (.visitMethod cv (util/flags flags) mname desc nil nil)
-                emit (if (fn? (:emit m))
-                       (:emit m)
-                       (op/compile (:emit m)))]
-            (.visitCode mv)
-            (binding [util/*labels* (atom {})]
-              (emit mv))
-            (ann/visit mv (:annotations m))
-            (doseq [[i anns] (:parameter-annotations m)]
-              (ann/visit mv i anns))
-            (doto mv
-              (.visitMaxs -1 -1)
-              .visitEnd)
-            (recur ms (or ctor? init?)))))
-
+                            [:return]]}))]
+    (binding [util/*this* this
+              util/*super* super]
+      (doseq [f (:fields t)]
+        (visit-field cv f))
+      (doseq [m (:methods t)]
+        (visit-method cv m))
       (doto cv
         (ann/visit (:annotations t))
         .visitEnd))
     {:bytes (.toByteArray cv), :name cls, :insn/visited true}))
+
+(defn- visit-field [^ClassVisitor cv f]
+  (let [flags (:flags f *field-flags*)
+        ftype (util/type-desc (:type f))
+        fval (when-let [v (:value f)]
+               (case ftype
+                 "I" (int v), "J" (long v)
+                 "F" (float v), "D" (double v)
+                 v))
+        fv (.visitField cv (util/flags flags) (name (:name f)) ftype nil fval)]
+    (ann/visit fv (:annotations f))
+    (.visitEnd fv)))
+
+(defn- visit-method [^ClassVisitor cv m]
+  (let [mname (util/method-name (:name m))
+        clinit? (= mname "<clinit>")
+        init? (= mname "<init>")
+        flags (cond
+                clinit? [:static]
+                init? (:flags m *init-flags*)
+                :else (:flags m *method-flags*))
+        desc (cond
+               clinit?
+               "()V"
+               init?
+               (let [desc (util/method-desc (:desc m))]
+                 (if (.endsWith ^String desc "V")
+                   desc
+                   (util/method-desc (concat (:desc m) [:void]))))
+               :else
+               (if (:desc m)
+                 (util/method-desc (:desc m))
+                 "()V"))
+        mv (.visitMethod cv (util/flags flags) mname desc nil nil)
+        emit (if (fn? (:emit m))
+               (:emit m)
+               (op/compile (:emit m)))]
+    (.visitCode mv)
+    (binding [util/*labels* (atom {})]
+      (emit mv))
+    (ann/visit mv (:annotations m))
+    (doseq [[i anns] (:parameter-annotations m)]
+      (ann/visit mv i anns))
+    (doto mv
+      (.visitMaxs -1 -1)
+      .visitEnd)))
 
 ;;;
 
