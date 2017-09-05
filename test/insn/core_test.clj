@@ -2,7 +2,8 @@
   (:require [insn.core :as core]
             [insn.op :as op]
             [clojure.test :refer :all])
-  (:import [java.lang.annotation Retention RetentionPolicy Target ElementType]
+  (:import [clojure.asm ClassReader ClassVisitor MethodVisitor Opcodes]
+           [java.lang.annotation Retention RetentionPolicy Target ElementType]
            [java.lang.invoke CallSite ConstantCallSite MethodHandle MethodHandles MethodHandles$Lookup MethodType]
            [javax.annotation.processing SupportedOptions]
            [javax.xml.ws WebServiceRef WebServiceRefs]
@@ -267,20 +268,33 @@
     (is (= 43 (.go obj 42)))))
 
 (deftest test-debug-info
-  (let [obj (-> {:methods [{:name "inc", :desc [:int :int]
-                            :emit [[:mark :BEGIN]
-                                   [:line-number 1 :BEGIN]
-                                   [:iload 1]
-                                   [:ldc 1]
-                                   [:iadd]
-                                   [:ireturn]
-                                   [:mark :END]
-                                   [:local-variable "this" :this :BEGIN :END 0]
-                                   [:local-variable "i" :int :BEGIN :END 1]]}]}
-                core/visit
-                #_(core/write (System/getProperty "java.io.tmpdir"))
-                core/new-instance)]
-    (is (= 43 (.inc obj 42)))))
+  (let [t (core/visit
+           {:methods [{:name "inc", :desc [:int :int]
+                       :emit [[:mark :BEGIN]
+                              [:line-number 1 :BEGIN]
+                              [:iload 1]
+                              [:ldc 1]
+                              [:iadd]
+                              [:ireturn]
+                              [:mark :END]
+                              [:local-variable "this" :this :BEGIN :END 0]
+                              [:local-variable "i" :int :BEGIN :END 1]]}]})
+        obj (core/new-instance t)
+
+        debug (volatile! {})
+        cv (proxy [ClassVisitor] [Opcodes/ASM4]
+             (visitMethod [api mname & args]
+               (when (= mname "inc")
+                 (proxy [MethodVisitor] [Opcodes/ASM4]
+                   (visitLineNumber [line & args]
+                     (vswap! debug update :lines (fnil conj []) line))
+                   (visitLocalVariable [vname & args]
+                     (vswap! debug update :vars (fnil conj []) vname))))))
+        _ (.accept (ClassReader. (:bytes t)) cv 0)]
+
+    (is (= 43 (.inc obj 42)))
+    (is (= [1] (:lines @debug)))
+    (is (= ["this" "i"] (:vars @debug)))))
 
 (deftest test-new-instance
   (let [put (fn [s]
