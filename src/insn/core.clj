@@ -266,7 +266,7 @@
                         (catch NoSuchMethodException _
                           (throw (ex-info "no constructor found for arguments"
                                           {:args args} e))))))))]
-     (.newInstance ctor (object-array args)))))
+     (.newInstance ^Constructor ctor (object-array args)))))
 
 (defn write
   "Takes a map specifying a classes' :name and :bytes. Writes the class
