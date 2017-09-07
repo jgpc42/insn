@@ -313,7 +313,7 @@
     (go xs)))
 
 (defn compile
-  "Compile a sequence a op seqs to a fn that accepts an ASM
+  "Compile a sequence of op seqs to a fn that accepts an ASM
   MethodVisitor to emit method bytecode.
 
   Nested bytecode sequences will be flattened, and nils removed."
