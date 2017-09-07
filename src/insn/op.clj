@@ -297,11 +297,26 @@
       (throw (ex-info (str "invalid arity for op :invokedynamic: expected 3 or 4, got " nargs)
                       {:name :invokedynamic, :args args})))))
 
+(defn ^:internal op-seq
+  "Return a flattened sequence of ops."
+  [xs]
+  (let [op? (comp keyword? first)
+        go (fn go [[x & xs]]
+             (lazy-seq
+              (cond
+                (op? x)
+                (cons x (go xs))
+                (seq x)
+                (concat (go x) (go xs))
+                (seq xs)
+                (go xs))))]
+    (go xs)))
+
 (defn compile
   "Compile a sequence a op seqs to a fn that accepts an ASM
   MethodVisitor to emit method bytecode."
   [ops]
-  (let [ops (mapv -op ops)]
+  (let [ops (mapv -op (op-seq ops))]
     (fn [v]
       (doseq [op ops]
         (apply (::fn op) v (::args op))))))

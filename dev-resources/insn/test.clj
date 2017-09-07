@@ -3,6 +3,7 @@
             [insn.core :as insn]
             insn.core-test
             insn.clojure-test
+            insn.op-test
             insn.util-test)
   (:gen-class))
 
