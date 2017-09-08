@@ -207,6 +207,10 @@
       (.visitMaxs -1 -1)
       .visitEnd)))
 
+(def ^{:arglists '([t])
+       :doc "Alias of `visit`."}
+  generate visit)
+
 ;;;
 
 (defprotocol Loader
