@@ -31,7 +31,7 @@
                       (aget 0)))))))
 
 (deftest test-fields
-  (let [cname (symbol (str "insn.core_test." (gensym "fields")))
+  (let [cname 'insn.core_test.fields
         obj (make
              :name cname
              :fields [{:flags [:public], :name "x", :type :int}
@@ -82,7 +82,7 @@
       (is (= nil (.go obj 100))))))
 
 (deftest test-methods
-  (let [cname (str "insn.core_test." (gensym "methods"))
+  (let [cname 'insn.core_test.methods
         obj (make
              :name cname
              :methods [{:name "foo", :desc [Long :int :int]
@@ -99,7 +99,7 @@
       (is (= 59 (.foo obj 42 17))))
 
     (testing "static"
-      (is (= 43 (eval `(~(symbol cname "bar") 42)))))))
+      (is (= 43 (eval `(. ~cname bar 42)))))))
 
 (deftest test-multianewarray
   (let [obj (make
