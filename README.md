@@ -102,6 +102,12 @@ Or, `lein test-all` for all supported Clojure versions.
   - [mage](https://github.com/nasser/mage) and [magic](https://github.com/nasser/magic)
     * Clojure-CLR only.
 
+### License
+
+Copyright © 2017 Justin Conklin
+
+Distributed under the Eclipse Public License, the same as Clojure.
+
 
 
 [asm]:     http://asm.ow2.org
