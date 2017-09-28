@@ -102,6 +102,11 @@ Or, `lein test-all` for all supported Clojure versions.
   - [mage](https://github.com/nasser/mage) and [magic](https://github.com/nasser/magic)
     * Clojure-CLR only.
 
+### Projects using insn
+
+  - [jmh-clojure](https://github.com/jgpc42/jmh-clojure)
+    * Clojure bridge to JMH benchmarking via bytecode generation.
+
 ### License
 
 Copyright © 2017 Justin Conklin
