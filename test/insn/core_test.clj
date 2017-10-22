@@ -322,3 +322,31 @@
     (is (= "d" (str (core/new-instance type "bar" 42))))
     (is (= "f" (str (core/new-instance type "baz" (int 42)))))
     (is (= "g" (str (core/new-instance type 1 (int 2) 3))))))
+
+(deftest test-type-reflection
+  (testing "field"
+    (let [obj (core/new-instance
+               {:methods [{:name "go", :desc [Object]
+                           :emit [[:getstatic System "out"]
+                                  [:areturn]]}]})]
+      (is (= System/out (.go obj)))))
+
+  (testing "method"
+    (let [obj (core/new-instance
+               {:methods [{:name "foo", :desc [Object]
+                           :emit [[:ldc "java.home"]
+                                  [:invokestatic System "getProperty" 1]
+                                  [:invokestatic System "lineSeparator"]
+                                  [:invokevirtual String "concat"]
+                                  [:areturn]]}
+                          {:name "bar", :desc [[:char] Object]
+                           :emit [[:aload 1]
+                                  [:ldc 1]
+                                  [:ldc 2]
+                                  [:invokestatic String "valueOf" 3]
+                                  [:areturn]]}]})]
+      (is (= (str (System/getProperty "java.home")
+                  (System/lineSeparator))
+             (.foo obj)))
+      (is (= "bc"
+             (.bar obj (.toCharArray "abcd")))))))

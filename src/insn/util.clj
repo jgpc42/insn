@@ -266,7 +266,14 @@
   AFunction
   (type-desc [f] (check-valid "type descriptor" type-fn? f))
   Class
-  (type-desc [c] (type-desc (.getName c)))
+  (type-desc [c]
+    (cond
+      (.isPrimitive c)
+      (type-desc (keyword (.getName c)))
+      (.isArray c)
+      (.getName c)
+      :else
+      (type-desc (.getName c))))
   Keyword
   (type-desc [k]
     (or (some-> (class-keyword? k) deref type-desc)

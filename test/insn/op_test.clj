@@ -2,6 +2,12 @@
   (:require [insn.op :as op]
             [clojure.test :refer :all]))
 
+(deftest test-compile
+  (is (thrown-with-msg?
+       Exception
+       #"invalid arity for op :invokedynamic: expected 3 or 4, got 0"
+       (op/compile [[:invokedynamic]]))))
+
 (deftest test-op-seq
   (let [ops '[nil
               [:ldc 1]

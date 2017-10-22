@@ -4,7 +4,8 @@
   "Bytecode helpers. Fns for opcodes with an underscore in their name
   (e.g., IF_ICMPEQ) use a dash instead (e.g., if-icmpeq)."
   (:refer-clojure :exclude [compile pop])
-  (:require [insn.util :as util]))
+  (:require [insn.util :as util])
+  (:import [java.lang.reflect Method]))
 
 (defmulti ^:private -op
   "Return an op data map representing a op visitor fn to be called
@@ -22,41 +23,63 @@
                      (subvec opseq# 1)
                      (vec (next opseq#)))
              nargs# (count args#)
-             arity# (-> var# meta :arglists first count dec)]
-         (if (== nargs# arity#)
+             arity# (->> var# meta :arglists
+                         (map (comp dec count))
+                         set)]
+         (if (arity# nargs#)
            {::fn @var#, ::name ~kop, ::args args#}
-           (throw (ex-info (format "invalid arity for op %s: expected %d, got %d"
-                                   ~kop arity# nargs#)
-                           {:name ~kop, :args args#})))))))
+           (let [arities# (if (== 1 (count arity#))
+                            (first arity#)
+                            (apply str (interpose " or " (sort arity#))))]
+             (throw (ex-info (format "invalid arity for op %s: expected %s, got %d"
+                                     ~kop arities# nargs#)
+                             {:name ~kop, :args args#}))))))))
 
 (defmacro ^:private defops
   "Define bytecode visitor fns taking an ASM MethodVisitor object as
   their first argument. A local `&op` value will be in scope that refers
-  to the corresponding Opcode field."
-  [ops doc [v & args] & body]
-  `(do
-     ~@(for [sym ops]
-         (let [field (->> sym name .toUpperCase
-                          (str (.getName Opcodes) \/)
-                          symbol)
-               fname (-> sym name (.replace \_ \-) symbol)]
-           `(do
-              (defn ~fname ~doc
-                [~(vary-meta v assoc :tag `MethodVisitor)
-                 ~@args]
-                (let [~'&op ~field]
-                  ~@body))
-              (def-op-method ~fname))))))
+  to the corresponding Opcode field. Additionally, a local `&fn` value
+  is also in scope, denoting the fn."
+  [ops doc & decls]
+  (let [decls (if (seq? (first decls))
+                decls
+                (list decls))
+        alists (map first decls)]
+    `(do
+       ~@(for [sym ops]
+           (let [field (->> sym name .toUpperCase
+                            (str (.getName Opcodes) \/)
+                            symbol)
+                 fname (-> sym name (.replace \_ \-) symbol)]
+             `(do
+                (def ~fname ~doc
+                  (fn ~'&fn
+                    ~@(for [[[v & args] & body] decls]
+                        `([~(vary-meta v assoc :tag `MethodVisitor)
+                           ~@args]
+                          (let [~'&op ~field]
+                            ~@body)))))
+                (alter-meta! #'~fname assoc :arglists '~alists)
+                (def-op-method ~fname)))))))
 
 ;;;
 
 (defops [getfield putfield
          getstatic putstatic]
   "Read or write type `ftype` instance or static field named `fname` of
-  class `cls`."
-  [v cls fname ftype]
-  (.visitFieldInsn v &op (util/class-desc cls)
-                   (name fname) (util/type-desc ftype)))
+  class `cls`.
+
+  If the type is not provided, it will be determined through reflection.
+  In this case, the class must be given as a string or Class object."
+  ([v cls fname]
+   (let [cls (if (class? cls)
+               cls
+               (Class/forName cls))
+         f (.getField ^Class cls (name fname))]
+     (&fn v cls fname (.getType f))))
+  ([v cls fname ftype]
+   (.visitFieldInsn v &op (util/class-desc cls)
+                    (name fname) (util/type-desc ftype))))
 
 (defops [iinc]
   "Increment int local variable index `idx` by amount `n`."
@@ -126,10 +149,57 @@
 (defops [invokeinterface invokespecial
          invokestatic invokevirtual]
   "Call method named `mname` of class `cls` with the method arguments
-  and return type given by `desc`."
-  [v cls mname desc]
-  (.visitMethodInsn v &op (util/class-desc cls)
-                    (util/method-name mname) (util/method-desc desc)))
+  and return type given by `desc`.
+
+  If the type descriptor is not provided or is a numeric arity, it will
+  be determined through reflection. In this case, the class must be
+  given as a string or Class object."
+  ([v cls mname] (&fn v cls mname -1))
+  ([v cls mname desc-or-arity]
+   (let [mname (util/method-name mname)
+         desc (if (number? desc-or-arity)
+                (let [cls (if (class? cls)
+                            cls
+                            (Class/forName cls))
+                      arity (long desc-or-arity)
+                      descs (for [^Method m (.getMethods ^Class cls)
+                                  :when (= mname (.getName m))
+                                  :let [desc (.getParameterTypes m)]
+                                  :when (or (neg? arity)
+                                            (== arity (count desc)))]
+                              (concat desc
+                                      [(.getReturnType m)]))]
+                  (if (== 1 (count descs))
+                    (first descs)
+                    (let [init (if (zero? (count descs))
+                                 "no method"
+                                 "multiple methods")
+                          msg (str init " found with name '" mname "'"
+                                   (when-not (neg? arity)
+                                     (str " with arity " arity)))]
+                      (throw (ex-info msg {:arity arity})))))
+                desc-or-arity)]
+     (.visitMethodInsn v &op (util/class-desc cls)
+                       mname (util/method-desc desc)))))
+
+(defops [invokedynamic]
+  "Call bootstrap method `boot` to return callsite for method `mname`
+  with arguments and return type given by `desc`.
+
+  The bootstrap method can be a ASM Handle (see `insn.util`) or an op
+  sequence of the form specified by the invokeX instructions.
+
+  An optional seq of constant arguments `args` may be given and each
+  must be either an Integer, Float, Long, Double, String, ASM Type, or
+  ASM Handle object. These are passed to the bootstrap method. See:
+  https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/package-summary.html"
+  ([v mname desc boot] (&fn v mname desc boot []))
+  ([v mname desc boot args]
+   (let [boot (if (sequential? boot)
+                (apply util/handle boot)
+                boot)]
+     (.visitInvokeDynamicInsn v (util/method-name mname) (util/method-desc desc)
+                              boot (object-array args)))))
 
 (defops [multianewarray]
   "Make a new array of type `atype` with `dims` dimensions."
@@ -185,25 +255,6 @@
   (.visitInsn v &op))
 
 ;;;
-
-(defn invokedynamic
-  "Call bootstrap method `boot` to return callsite for method `mname`
-  with arguments and return type given by `desc`.
-
-  The bootstrap method can be a ASM Handle (see `insn.util`) or an op
-  sequence of the form specified by the invokeX instructions.
-
-  An optional seq of constant arguments `args` may be given and each
-  must be either an Integer, Float, Long, Double, String, ASM Type, or
-  ASM Handle object. These are passed to the bootstrap method. See:
-  https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/package-summary.html"
-  ([v mname desc boot] (invokedynamic v mname desc boot []))
-  ([^MethodVisitor v mname desc boot args]
-   (let [boot (if (sequential? boot)
-                (apply util/handle boot)
-                boot)]
-     (.visitInvokeDynamicInsn v (util/method-name mname) (util/method-desc desc)
-                              boot (object-array args)))))
 
 (defn ldc2
   "Load constant long or double value `x`."
@@ -288,14 +339,6 @@
 (def-op-method mark)
 (def-op-method pop1)
 (def-op-method trycatch)
-
-(defmethod -op :invokedynamic [opseq]
-  (let [args (vec (next opseq))
-        nargs (count args)]
-    (if (#{3 4} nargs)
-      {::fn invokedynamic, ::name :invokedynamic, ::args args}
-      (throw (ex-info (str "invalid arity for op :invokedynamic: expected 3 or 4, got " nargs)
-                      {:name :invokedynamic, :args args})))))
 
 (defn ^:internal op-seq
   "Return a flattened sequence of ops."
