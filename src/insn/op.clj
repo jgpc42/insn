@@ -5,7 +5,7 @@
   (e.g., IF_ICMPEQ) use a dash instead (e.g., if-icmpeq)."
   (:refer-clojure :exclude [compile pop])
   (:require [insn.util :as util])
-  (:import [java.lang.reflect Method]))
+  (:import [java.lang.reflect Field Method Modifier]))
 
 (defmulti ^:private -op
   "Return an op data map representing a op visitor fn to be called
@@ -72,11 +72,19 @@
   If the type is not provided, it will be determined through reflection.
   In this case, the class must be given as a string or Class object."
   ([v cls fname]
-   (let [cls (if (class? cls)
+   (let [fname (name fname)
+         cls (if (class? cls)
                cls
                (Class/forName cls))
-         f (.getField ^Class cls (name fname))]
-     (&fn v cls fname (.getType f))))
+         static? (not (#{Opcodes/GETFIELD Opcodes/PUTFIELD} &op))
+         types (for [^Field f (.getFields ^Class cls)
+                     :when (and (= fname (.getName f))
+                                (= static?
+                                   (Modifier/isStatic (.getModifiers f))))]
+                 (.getType f))]
+     (if (== 1 (count types))
+       (&fn v cls fname (first types))
+       (throw (ex-info (str "no field found with name '" fname "'") {})))))
   ([v cls fname ftype]
    (.visitFieldInsn v &op (util/class-desc cls)
                     (name fname) (util/type-desc ftype))))
@@ -162,8 +170,11 @@
                             cls
                             (Class/forName cls))
                       arity (long desc-or-arity)
+                      static? (= Opcodes/INVOKESTATIC &op)
                       descs (for [^Method m (.getMethods ^Class cls)
-                                  :when (= mname (.getName m))
+                                  :when (and (= mname (.getName m))
+                                             (= static?
+                                                (Modifier/isStatic (.getModifiers m))))
                                   :let [desc (.getParameterTypes m)]
                                   :when (or (neg? arity)
                                             (== arity (count desc)))]
