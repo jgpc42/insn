@@ -84,7 +84,9 @@
                  (.getType f))]
      (if (== 1 (count types))
        (&fn v cls fname (first types))
-       (throw (ex-info (str "no field found with name '" fname "'") {})))))
+       (let [msg (format "no %s field found with name '%s'"
+                         (if static? "static" "instance") fname)]
+         (throw (ex-info msg {:candidates types}))))))
   ([v cls fname ftype]
    (.visitFieldInsn v &op (util/class-desc cls)
                     (name fname) (util/type-desc ftype))))
@@ -182,13 +184,15 @@
                                       [(.getReturnType m)]))]
                   (if (== 1 (count descs))
                     (first descs)
-                    (let [init (if (zero? (count descs))
-                                 "no method"
-                                 "multiple methods")
-                          msg (str init " found with name '" mname "'"
-                                   (when-not (neg? arity)
-                                     (str " with arity " arity)))]
-                      (throw (ex-info msg {:arity arity})))))
+                    (let [nstr (if (zero? (count descs)) "no" "multiple")
+                          type (if static? "static" "instance")
+                          plural (if (= nstr "no") "" "s")
+                          msg (format "%s %s method%s found with name '%s'%s"
+                                      nstr type plural mname
+                                      (if (neg? arity)
+                                        ""
+                                        (str " with arity " arity)))]
+                      (throw (ex-info msg {:candidates descs})))))
                 desc-or-arity)]
      (.visitMethodInsn v &op (util/class-desc cls)
                        mname (util/method-desc desc)))))
