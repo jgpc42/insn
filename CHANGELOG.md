@@ -1,3 +1,9 @@
+## 0.2.0 (2017-10-27)
+
+* Determine types for field instructions automatically when not specified
+* Determine type descriptors for invoke instructions automatically when not specified
+* VERSIONING: (finally) increment the [*minor*][semver] library version
+
 ## 0.1.4 (2017-09-07)
 
 * Allow passing constructor arguments to `new-instance`
@@ -25,4 +31,5 @@
 
 
 
-[mage]:  https://github.com/nasser/mage
+[mage]:    https://github.com/nasser/mage
+[semver]:  http://semver.org/
