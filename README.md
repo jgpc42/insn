@@ -3,13 +3,19 @@
 
 ### Dependency information
 
-Leiningen
+[Leiningen][lein]
 
 ``` clojure
 [insn "0.2.0"]
 ```
 
-Maven
+[tools.deps.alpha][deps]
+
+```clojure
+{insn {:mvn/version "0.2.0"}}
+```
+
+[Maven][maven]
 
 ``` xml
 <dependency>
@@ -18,6 +24,8 @@ Maven
   <version>0.2.0</version>
 </dependency>
 ```
+
+Clojure versions 1.7 through 1.9 are currently supported.
 
 ### What is it?
 
@@ -116,8 +124,11 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 
 [asm]:     http://asm.ow2.org
+[deps]:    https://github.com/clojure/tools.deps.alpha
 [doc]:     https://jgpc42.github.io/insn/doc
 [emitfn]:  https://github.com/jgpc42/insn/wiki/Interface-Implementation
 [extasm]:  https://github.com/jgpc42/insn/wiki/Using-External-ASM
+[lein]:    http://github.com/technomancy/leiningen
+[maven]:   http://maven.apache.org
 [pdf]:     http://download.forge.objectweb.org/asm/asm4-guide.pdf
 [wiki]:    https://github.com/jgpc42/insn/wiki
