@@ -25,6 +25,7 @@
   :profiles
   {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
    :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
+   :dev {:dependencies [[javax.xml.ws/jaxws-api "2.3.0"]]}
    :external-asm {:dependencies [[org.ow2.asm/asm "5.2"]]
                   :jvm-opts ["-Dinsn.objectweb-asm"]}
    :repl {:source-paths ["dev"]}})
