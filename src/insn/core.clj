@@ -150,13 +150,18 @@
         this (util/class-desc cls)
         super (util/class-desc (:super t Object))
         ifaces (map util/class-desc (:interfaces t))
-        version (util/check-valid "version" util/version?
-                                  (:version t *bytecode-version*))
-        wflags (if (>= (long version) 1.7)
+
+        version (:version t *bytecode-version*)
+        bversion (util/check-valid "version" util/version? version)
+        iversion (if (float? version)
+                   (* 10 (- version (long version)))
+                   version)
+        wflags (if (>= (long iversion) 7)
                  ClassWriter/COMPUTE_FRAMES
                  ClassWriter/COMPUTE_MAXS)
+
         cv (doto (ClassWriter. wflags)
-             (.visit version (util/flags flags) this nil
+             (.visit bversion (util/flags flags) this nil
                      super (into-array String ifaces)))
 
         ctor? #(= "<init>" (util/method-name (:name %)))
@@ -186,7 +191,8 @@
                  "I" (int v), "J" (long v)
                  "F" (float v), "D" (double v)
                  v))
-        fv (.visitField cv (util/flags flags) (name (:name f)) ftype nil fval)]
+        fv (.visitField cv (util/flags flags)
+                        (name (:name f)) ftype nil fval)]
     (ann/visit fv (:annotations f))
     (.visitEnd fv)))
 
