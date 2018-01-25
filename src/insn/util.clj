@@ -150,8 +150,10 @@
   "Return opcode bit flags for asm class, method, or field."
   [x]
   (let [flag #(check-valid "flag" flag-keyword? %)]
-    (if (or (nil? x) (sequential? x) (set? x))
-      (apply bit-or 0 (map flag x))
+    (if (or (sequential? x) (set? x))
+      (if (seq x)
+        (apply bit-or 0 (map flag x))
+        0)
       (flag x))))
 
 (defn ^:no-doc intern-symbol?
