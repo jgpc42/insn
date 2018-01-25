@@ -18,7 +18,7 @@
 
     (seq? x)
     (let [[nname nval] x
-          ndesc (util/type-desc (resolve nname))
+          ndesc (util/type-desc nname)
           av (.visitAnnotation v ename ndesc)]
       (visit* av nval))
 

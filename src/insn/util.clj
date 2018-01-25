@@ -154,6 +154,13 @@
       (apply bit-or 0 (map flag x))
       (flag x))))
 
+(defn ^:no-doc intern-symbol?
+  "Return true if the given value is a symbol with no namespace or dots."
+  [x]
+  (and (symbol? x)
+       (nil? (namespace x))
+       (not (.contains (name x) "."))))
+
 (defn label
   "Return a new asm label. Note that labels are mutable values."
   [] (Label.))
@@ -196,7 +203,7 @@
 (defn method-type
   "Return an ASM Type object denoting a method."
   [xs]
-  (type (method-desc xs)))
+  (Type/getMethodType (method-desc xs)))
 
 (defn ^:no-doc optional
   "Accepts a predicate `f` and a seq `s`. If the first of s `x`
@@ -207,6 +214,13 @@
    (if (pred x)
      [x more]
      [default (seq xs)])))
+
+(defn ^:no-doc resolve-if
+  "Resolve the symbol if the resolved value satisfies the predicate."
+  [pred s]
+  (let [v (resolve s)]
+    (when (pred v)
+      v)))
 
 (defn special-desc
   "Return internal type string for the 'anewarray', 'checkcast',
@@ -256,11 +270,15 @@
   (class-desc [k] @(check-valid "class keyword" class-keyword? k))
   String
   (class-desc [s]
-    (if (== -1 (.indexOf s "/"))
+    (if (.contains s ".")
       (.replace s \. \/)
       s))
   Symbol
-  (class-desc [s] (class-desc (resolve s))))
+  (class-desc [s]
+    (if-let [c (and (intern-symbol? s)
+                    (resolve-if class? s))]
+      (class-desc c)
+      (class-desc (name s)))))
 
 (extend-protocol TypeDesc
   AFunction
@@ -271,7 +289,7 @@
       (.isPrimitive c)
       (type-desc (keyword (.getName c)))
       (.isArray c)
-      (.getName c)
+      (type-desc [(.getComponentType c)])
       :else
       (type-desc (.getName c))))
   Keyword
@@ -281,13 +299,18 @@
   Sequential
   (type-desc [s] (str "[" (type-desc (first s))))
   String
-  (type-desc [s] (str "L" (class-desc s) ";"))
+  (type-desc [s]
+    (if (.endsWith s ";")
+      s
+      (str "L" (class-desc s) ";")))
   Symbol
   (type-desc [s]
     (if (= s 'void)
       "V"
-      (let [x (resolve s)]
-        (type-desc (if (class? x) x (some-> x deref)))))))
+      (if-let [x (and (intern-symbol? s)
+                      (resolve s))]
+        (type-desc (if (var? x) @x x))
+        (type-desc (name s))))))
 
 (extend-protocol AsmType
   Class
@@ -295,16 +318,17 @@
   Keyword
   (type [k]
     (if (class-keyword? k)
-      (type (str "L" (class-desc k) ";"))
+      (type (class-desc k))
       (check-valid "asm type" asm-type-keyword? k)))
   Sequential
   (type [s] (type (type-desc s)))
   Symbol
-  (type [s] (type (resolve s)))
-  String
   (type [s]
-    (if (= \( (first s))
-      (Type/getMethodType s)
-      (Type/getType s)))
+    (if-let [c (and (intern-symbol? s)
+                    (resolve-if class? s))]
+      (type c)
+      (type (name s))))
+  String
+  (type [s] (Type/getType (type-desc s)))
   Type
   (type [t] t))
