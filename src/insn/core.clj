@@ -154,7 +154,7 @@
         version (:version t *bytecode-version*)
         bversion (util/check-valid "version" util/version? version)
         iversion (if (float? version)
-                   (* 10 (- version (long version)))
+                   (* 10 (- (double version) (long version)))
                    version)
         wflags (if (>= (long iversion) 7)
                  ClassWriter/COMPUTE_FRAMES

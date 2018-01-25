@@ -340,6 +340,6 @@
       (type c)
       (type (name s))))
   String
-  (type [s] (Type/getType (type-desc s)))
+  (type [s] (Type/getType ^String (type-desc s)))
   Type
   (type [t] t))
