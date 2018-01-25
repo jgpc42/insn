@@ -24,7 +24,7 @@
        :dynamic true}
   *method-flags* #{:public :final})
 
-(def ^{:doc "The default bytecode version to use if unspecified."
+(def ^{:doc "The bytecode version to use for types if unspecified."
        :dynamic true}
   *bytecode-version* 1.7)
 
@@ -33,17 +33,27 @@
 (declare visit-field visit-method)
 
 (defn visit
-  "Visit the provided type map and its members to generate the class
-  bytecode. Returns a map of the classes' :name and :bytes. Options:
+  "Generate the class bytecode from the provided type map. Returns a map
+  of the classes' :name and :bytes. Options:
 
     :name         of the class. Optional, but see below.
+
     :flags        seq of class/interface modifier flags (e.g., :final).
+                  See the `insn.util` namespace.
+
     :super        defaults to Object.
+
     :interfaces   sequence of interface types to extend/implement.
+
     :annotations  map or sequence of tuples, described below.
+
     :fields       sequence of field maps, described below.
+
     :methods      sequence of method maps, described below.
-    :version      bytecode version given as a double of major.minor.
+
+    :version      bytecode version given as a integer. For backwards
+                  compatibility, a float of major.minor may be given
+                  for versions 1.1 through 1.8.
 
   Each field and method can also be given :annotations as per above.
 
@@ -71,8 +81,11 @@
   Class instance/static fields are provided as maps. Options:
 
     :name   field name (required).
+
     :type   field type (required).
-    :flags  modifier flags.
+
+    :flags  seq of field modifier flags.
+
     :value  initial value. Only for primitive and String static fields,
             and if given, must be a corresponding Integer, Float, Long,
             Double, or String value.
@@ -88,11 +101,15 @@
     :name   method name (required). Can be either :init or :clinit,
             designating a constructor or the static initializer,
             respectively.
-    :flags  modifier flags. Ignored for the static initializer.
+
+    :flags  seq of method modifier flags. Ignored for the static
+            initializer.
+
     :desc   method parameter types and return type (specified last).
             Ignored for the static initializer, optional for
             constructors. For constructors, the method return type is
             forced to void if not explicitly specified as such.
+
     :emit   either a fn taking a MethodVisitor or a sequence of
             instructions to emit for the method (see `insn.op`).
             Optional if method is abstract.
