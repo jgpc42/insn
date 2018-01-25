@@ -6,13 +6,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.2.0"]
+[insn "0.2.1"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn {:mvn/version "0.2.0"}}
+{insn {:mvn/version "0.2.1"}}
 ```
 
 [Maven][maven]
@@ -21,7 +21,7 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
 </dependency>
 ```
 
@@ -117,7 +117,7 @@ Or, `lein test-all` for all supported Clojure versions.
 
 ### License
 
-Copyright © 2017 Justin Conklin
+Copyright © 2018 Justin Conklin
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
