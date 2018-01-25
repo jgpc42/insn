@@ -12,6 +12,18 @@
 (defn make [& {:as m}]
   (core/new-instance m))
 
+(deftest test-anewarray
+  (let [obj (make
+             :methods [{:name "go", :desc [[Object]]
+                        :emit [[:ldc 1]
+                               [:anewarray Object]
+                               [:dup]
+                               [:ldc 0]
+                               [:ldc "foo"]
+                               [:aastore]
+                               [:areturn]]}])]
+    (is (= "foo" (-> (.go obj) (aget 0))))))
+
 (deftest test-casts
   (let [obj (make
              :methods
@@ -54,6 +66,17 @@
 
     (testing "static"
       (is (= 17 (eval `(. ~cname y)))))))
+
+(deftest test-instanceof
+  (let [obj (make
+             :methods [{:name "go", :desc [Object Object :int]
+                        :emit [[:aload 1]
+                               [:instanceof String]
+                               [:aload 2]
+                               [:instanceof [Long]]
+                               [:iadd]
+                               [:ireturn]]}])]
+    (is (= 2 (.go obj "foo" (into-array Long [42]))))))
 
 (deftest test-ldc
   (let [obj (make
