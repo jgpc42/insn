@@ -36,6 +36,11 @@
 
 ;;;
 
+(defmacro ^:private try-get-opcode [fname]
+  `(try
+     (.getInt (.getField Opcodes ~fname) nil)
+     (catch NoSuchFieldException _#)))
+
 (def ^:no-doc array-type-keyword?
   {:boolean Opcodes/T_BOOLEAN
    :byte Opcodes/T_BYTE
@@ -70,8 +75,11 @@
    :transient Opcodes/ACC_TRANSIENT
    :varargs Opcodes/ACC_VARARGS
    :volatile Opcodes/ACC_VOLATILE
-   :mandated (try (.getInt (.getField Opcodes "ACC_MANDATED") nil)
-                  (catch NoSuchFieldException _))})
+   :mandated (try-get-opcode "ACC_MANDATED")
+   :module (try-get-opcode "ACC_MODULE")
+   :open (try-get-opcode "ACC_OPEN")
+   :static-phase (try-get-opcode "ACC_STATIC_PHASE")
+   :transitive (try-get-opcode "ACC_TRANSITIVE")})
 
 (def ^:no-doc handle-keyword?
   {:getfield Opcodes/H_GETFIELD
@@ -121,15 +129,16 @@
    :void Type/VOID_TYPE})
 
 (def ^:no-doc version?
-  {1.1 Opcodes/V1_1
-   1.2 Opcodes/V1_2
-   1.3 Opcodes/V1_3
-   1.4 Opcodes/V1_4
-   1.5 Opcodes/V1_5
-   1.6 Opcodes/V1_6
-   1.7 Opcodes/V1_7
-   1.8 (try (.getInt (.getField Opcodes "V1_8") nil)
-            (catch NoSuchFieldException _))})
+  {1.1 Opcodes/V1_1, 1 Opcodes/V1_1
+   1.2 Opcodes/V1_2, 2 Opcodes/V1_2
+   1.3 Opcodes/V1_3, 3 Opcodes/V1_3
+   1.4 Opcodes/V1_4, 4 Opcodes/V1_4
+   1.5 Opcodes/V1_5, 5 Opcodes/V1_5
+   1.6 Opcodes/V1_6, 6 Opcodes/V1_6
+   1.7 Opcodes/V1_7, 7 Opcodes/V1_7
+   1.8 (try-get-opcode "V1_8")
+   8 (try-get-opcode "V1_8")
+   9 (try-get-opcode "V9")})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
