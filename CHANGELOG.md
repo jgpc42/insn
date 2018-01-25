@@ -1,6 +1,6 @@
 ## 0.2.1 (2018-01-25)
 
-* Add support for generating [modules][jigsaw] (requires ASM version >= [`6.0`][asm])
+* Add support for generating [modules][modules] (requires ASM version >= [`6.0`][asm])
 * Add support for version 9 bytecode and specifying bytecode `:version` as an integer
 * BUGFIX: arity exception when modifier `:flags` were explicitly `nil` under rare circumstances
 
@@ -37,7 +37,7 @@
 
 
 
-[asm]:     http://asm.ow2.org/history.html
-[jigsaw]:  http://openjdk.java.net/projects/jigsaw/
-[mage]:    https://github.com/nasser/mage
-[semver]:  http://semver.org/
+[asm]:      http://asm.ow2.org/history.html
+[mage]:     https://github.com/nasser/mage
+[modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
+[semver]:   http://semver.org/
