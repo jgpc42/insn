@@ -269,7 +269,7 @@
 
   If the given argument count matches a constructor with a distinct
   arity, that one is invoked. In this case, constructors that take
-  primitives are supported via reflection unboxing.
+  primitives are supported via reflective unboxing.
 
   Otherwise, the argument types must exactly match (as per
   `clojure.core/class`) a defined constructor, or a constructor that
