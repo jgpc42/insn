@@ -2,28 +2,19 @@
   "Namespace utils.")
 
 (def ^:private asm-import-decl
-  (if (or (System/getProperty "insn.objectweb-asm")
-          (find-ns 'insn.objectweb-asm))
-    '[org.objectweb.asm
-      AnnotationVisitor
-      ClassVisitor
-      ClassWriter
-      FieldVisitor
-      Handle
-      Label
-      MethodVisitor
-      Opcodes
-      Type]
-    '[clojure.asm
-      AnnotationVisitor
-      ClassVisitor
-      ClassWriter
-      FieldVisitor
-      Handle
-      Label
-      MethodVisitor
-      Opcodes
-      Type]))
+  (cons (if (or (System/getProperty "insn.objectweb-asm")
+                (find-ns 'insn.objectweb-asm))
+          'org.objectweb.asm
+          'clojure.asm)
+        '[AnnotationVisitor
+          ClassVisitor
+          ClassWriter
+          FieldVisitor
+          Handle
+          Label
+          MethodVisitor
+          Opcodes
+          Type]))
 
 (def ^:private import-decls
   (list asm-import-decl
