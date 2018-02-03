@@ -9,6 +9,10 @@
            [java.io File FileOutputStream]
            [java.lang.reflect Constructor]))
 
+(def ^:private jvm-version
+  (-> (System/getProperty "java.specification.version")
+      Double/valueOf))
+
 (def ^{:doc "The class/interface flags to use if unspecified."
        :dynamic true}
   *class-flags* #{:public :final})
@@ -27,7 +31,8 @@
 
 (def ^{:doc "The bytecode version to use for types if unspecified."
        :dynamic true}
-  *bytecode-version* 1.7)
+  *bytecode-version*
+  (if (>= jvm-version 1.7) 7 6))
 
 ;;;
 
