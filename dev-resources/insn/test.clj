@@ -18,6 +18,9 @@
 (when (>= jvm 1.7)
   (require 'insn.v7-bytecode-test))
 
+(when (>= jvm 9)
+  (require 'insn.v9-bytecode-test))
+
 ;;;
 
 (def passed (atom nil))
