@@ -355,20 +355,12 @@
 
   (testing "method"
     (let [obj (core/new-instance
-               {:methods [{:name "foo", :desc [Object]
-                           :emit [[:ldc "java.home"]
-                                  [:invokestatic System "getProperty" 1]
-                                  [:invokestatic System "lineSeparator"]
-                                  [:invokevirtual String "concat"]
-                                  [:areturn]]}
-                          {:name "bar", :desc [[:char] Object]
-                           :emit [[:aload 1]
+               {:methods [{:name "bar", :desc [[:char] Object]
+                           :emit [[:ldc "foo-"]
+                                  [:aload 1]
                                   [:ldc 1]
                                   [:ldc 2]
                                   [:invokestatic String "valueOf" 3]
+                                  [:invokevirtual String "concat"]
                                   [:areturn]]}]})]
-      (is (= (str (System/getProperty "java.home")
-                  (System/lineSeparator))
-             (.foo obj)))
-      (is (= "bc"
-             (.bar obj (.toCharArray "abcd")))))))
+      (is (= "foo-bc" (.bar obj (.toCharArray "abcd")))))))
