@@ -2,9 +2,8 @@
   (:require [insn.core :as core]
             [insn.op :as op]
             [clojure.test :refer :all])
-  (:import [clojure.asm ClassReader ClassVisitor MethodVisitor Opcodes]
+  (:import [org.objectweb.asm ClassReader ClassVisitor MethodVisitor Opcodes]
            [java.lang.annotation Retention RetentionPolicy Target ElementType]
-           [java.lang.invoke CallSite ConstantCallSite MethodHandle MethodHandles MethodHandles$Lookup MethodType]
            [javax.annotation.processing SupportedOptions]
            [javax.xml.ws WebServiceRef WebServiceRefs]
            [javax.xml.ws.soap Addressing]))
