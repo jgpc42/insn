@@ -15,6 +15,9 @@
   (-> (System/getProperty "java.specification.version")
       Double/valueOf))
 
+(when (>= jvm 1.7)
+  (require 'insn.v7-bytecode-test))
+
 ;;;
 
 (def passed (atom nil))
