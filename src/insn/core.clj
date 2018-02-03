@@ -1,12 +1,13 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports insn.core
+(ns insn.core
   "Simple JVM bytecode generation."
   (:require [insn.util :as util]
             [insn.annotation :as ann]
             [insn.op :as op]
             [clojure.java.io :as io])
-  (:import [java.lang.reflect Constructor]))
+  (:import [clojure.lang DynamicClassLoader RT]
+           [org.objectweb.asm ClassVisitor ClassWriter]
+           [java.io File FileOutputStream]
+           [java.lang.reflect Constructor]))
 
 (def ^{:doc "The class/interface flags to use if unspecified."
        :dynamic true}

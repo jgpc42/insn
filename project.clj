@@ -4,7 +4,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.ow2.asm/asm "6.0"]]
 
   :min-lein-version "2.0.0"
 
@@ -28,8 +29,4 @@
   {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
    :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
    :dev {:dependencies [[javax.xml.ws/jaxws-api "2.3.0"]]}
-   :asm5.2 {:dependencies [[org.ow2.asm/asm "5.2"]]
-            :jvm-opts ["-Dinsn.objectweb-asm"]}
-   :asm6.0 {:dependencies [[org.ow2.asm/asm "6.0"]]
-            :jvm-opts ["-Dinsn.objectweb-asm"]}
    :repl {:source-paths ["dev"]}})

@@ -1,8 +1,8 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports insn.util
+(ns insn.util
   "Bytecode and ASM utilities."
-  (:refer-clojure :exclude [sort type]))
+  (:refer-clojure :exclude [sort type])
+  (:import [org.objectweb.asm Handle Label Opcodes Type]
+           [clojure.lang AFunction Keyword Sequential Symbol]))
 
 (defprotocol LabelArray
   (label-array [x]
@@ -36,11 +36,6 @@
 
 ;;;
 
-(defmacro ^:private try-get-opcode [fname]
-  `(try
-     (.getInt (.getField Opcodes ~fname) nil)
-     (catch NoSuchFieldException _#)))
-
 (def ^:no-doc array-type-keyword?
   {:boolean Opcodes/T_BOOLEAN
    :byte Opcodes/T_BYTE
@@ -63,23 +58,23 @@
    :enum Opcodes/ACC_ENUM
    :final Opcodes/ACC_FINAL
    :interface Opcodes/ACC_INTERFACE
+   :mandated Opcodes/ACC_MANDATED
+   :module Opcodes/ACC_MODULE
    :native Opcodes/ACC_NATIVE
+   :open Opcodes/ACC_OPEN
    :private Opcodes/ACC_PRIVATE
    :protected Opcodes/ACC_PROTECTED
    :public Opcodes/ACC_PUBLIC
    :static Opcodes/ACC_STATIC
+   :static-phase Opcodes/ACC_STATIC_PHASE
    :strict Opcodes/ACC_STRICT
    :super Opcodes/ACC_SUPER
    :synchronized Opcodes/ACC_SYNCHRONIZED
    :synthetic Opcodes/ACC_SYNTHETIC
    :transient Opcodes/ACC_TRANSIENT
+   :transitive Opcodes/ACC_TRANSITIVE
    :varargs Opcodes/ACC_VARARGS
-   :volatile Opcodes/ACC_VOLATILE
-   :mandated (try-get-opcode "ACC_MANDATED")
-   :module (try-get-opcode "ACC_MODULE")
-   :open (try-get-opcode "ACC_OPEN")
-   :static-phase (try-get-opcode "ACC_STATIC_PHASE")
-   :transitive (try-get-opcode "ACC_TRANSITIVE")})
+   :volatile Opcodes/ACC_VOLATILE})
 
 (def ^:no-doc handle-keyword?
   {:getfield Opcodes/H_GETFIELD
@@ -136,9 +131,8 @@
    1.5 Opcodes/V1_5, 5 Opcodes/V1_5
    1.6 Opcodes/V1_6, 6 Opcodes/V1_6
    1.7 Opcodes/V1_7, 7 Opcodes/V1_7
-   1.8 (try-get-opcode "V1_8")
-   8 (try-get-opcode "V1_8")
-   9 (try-get-opcode "V9")})
+   1.8 Opcodes/V1_8, 8 Opcodes/V1_8
+   9 Opcodes/V9})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."

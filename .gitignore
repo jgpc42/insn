@@ -3,6 +3,4 @@
 .nrepl-*
 pom.xml
 pom.xml.asc
-test-aot.sh
-dev/codox-patch.clj
 target/

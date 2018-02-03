@@ -1,11 +1,10 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports insn.op
+(ns insn.op
   "Bytecode helpers. Fns for opcodes with an underscore in their name
   (e.g., IF_ICMPEQ) use a dash instead (e.g., if-icmpeq)."
   (:refer-clojure :exclude [compile pop])
   (:require [insn.util :as util])
-  (:import [java.lang.reflect Field Method Modifier]))
+  (:import [org.objectweb.asm Handle Opcodes MethodVisitor]
+           [java.lang.reflect Field Method Modifier]))
 
 (defmulti ^:private -op
   "Return an op data map representing a op visitor fn to be called

@@ -1,10 +1,7 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports insn.module
-  "Generate module definitions. Note that loading this namespace
-  currently (as of Clojure 1.9) requires an external ASM (>= 6.0) since
-  the ASM bundled with Clojure is too old."
-  (:require [insn.util :as util]))
+(ns insn.module
+  "Generate module definitions."
+  (:require [insn.util :as util])
+  (:import [org.objectweb.asm ClassWriter]))
 
 (def ^{:doc "The bytecode version to use for modules if unspecified."
        :dynamic true}

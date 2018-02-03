@@ -1,11 +1,10 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports insn.clojure
+(ns insn.clojure
   "Generate Clojure fns whose bodies are specified as bytecode."
   (:refer-clojure :exclude [defn defn- fn])
   (:require [insn.core :as core]
             [insn.op :as op]
-            [insn.util :as util]))
+            [insn.util :as util])
+  (:import [clojure.lang AFunction Compiler$FnMethod RestFn RT]))
 
 (defmacro ^:private check [expr msg]
   `(when-not ~expr

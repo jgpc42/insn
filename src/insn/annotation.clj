@@ -1,8 +1,8 @@
-(when *ns* (require '[insn.namespace :as ns]))
-
-(ns/with-imports ^:no-doc insn.annotation
+(ns ^:no-doc insn.annotation
   "Annotation visitor fns."
-  (:require [insn.util :as util]))
+  (:require [insn.util :as util])
+  (:import [org.objectweb.asm AnnotationVisitor ClassVisitor FieldVisitor MethodVisitor]
+           [java.lang.annotation Retention RetentionPolicy]))
 
 (declare visit*)
 
