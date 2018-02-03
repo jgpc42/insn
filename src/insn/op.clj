@@ -198,7 +198,8 @@
 
 (defops [invokedynamic]
   "Call bootstrap method `boot` to return callsite for method `mname`
-  with arguments and return type given by `desc`.
+  with arguments and return type given by `desc`. Note that this
+  instruction requires version 7 bytecode and above.
 
   The bootstrap method can be a ASM Handle (see `insn.util`) or an op
   sequence of the form specified by the invokeX instructions.
