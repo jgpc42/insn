@@ -9,18 +9,7 @@
 
   :min-lein-version "2.0.0"
 
-  :aliases {"run-test" ["with-profile" "+test" "run" "-m" "insn.test"]
-            "run-test-aot" ["with-profile" "+test"
-                            "do" "compile" "insn.test,"
-                            "run" "-m" "insn.test,"
-                            "clean"]
-            "test" ["do" "clean,"
-                    "run-test,"
-                    "run-test-aot,"
-                    "with-profile" "+asm5.2" "run-test,"
-                    "with-profile" "+asm5.2" "run-test-aot,"
-                    "with-profile" "+asm6.0" "run-test,"
-                    "with-profile" "+asm6.0" "run-test-aot"]
+  :aliases {"test" ["with-profile" "+test" "run" "-m" "insn.test"]
             "test-all" ["do" "test,"
                         "with-profile" "+1.9" "test,"
                         "with-profile" "+1.7" "test"]}
