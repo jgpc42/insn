@@ -123,37 +123,44 @@
 (defops [ldc]
   "Load constant null, int, float, String, Type, or Handle value `x`."
   [v x]
-  (cond
-    (integer? x)
-    (let [n (int x)]
-      (case n
-        -1 (.visitInsn v Opcodes/ICONST_M1)
-        0 (.visitInsn v Opcodes/ICONST_0)
-        1 (.visitInsn v Opcodes/ICONST_1)
-        2 (.visitInsn v Opcodes/ICONST_2)
-        3 (.visitInsn v Opcodes/ICONST_3)
-        4 (.visitInsn v Opcodes/ICONST_4)
-        5 (.visitInsn v Opcodes/ICONST_5)
-        (cond
-          (<= Byte/MIN_VALUE n Byte/MAX_VALUE)
-          (.visitIntInsn v Opcodes/BIPUSH n)
-          (<= Short/MIN_VALUE n Short/MAX_VALUE)
-          (.visitIntInsn v Opcodes/SIPUSH n)
-          :else
-          (.visitLdcInsn v n))))
-    (float? x)
-    (let [n (float x)]
-      (condp = n
-        0.0 (.visitInsn v Opcodes/FCONST_0)
-        1.0 (.visitInsn v Opcodes/FCONST_1)
-        2.0 (.visitInsn v Opcodes/FCONST_2)
-        (.visitLdcInsn v n)))
-    (nil? x)
-    (.visitInsn v Opcodes/ACONST_NULL)
-    (or (instance? Handle x) (string? x))
-    (.visitLdcInsn v x)
-    :else
-    (.visitLdcInsn v (util/type x))))
+  (let [x (if (instance? Boolean x)
+            (if x 1 0)
+            x)]
+    (cond
+      (integer? x)
+      (let [n (int x)]
+        (case n
+          -1 (.visitInsn v Opcodes/ICONST_M1)
+          0 (.visitInsn v Opcodes/ICONST_0)
+          1 (.visitInsn v Opcodes/ICONST_1)
+          2 (.visitInsn v Opcodes/ICONST_2)
+          3 (.visitInsn v Opcodes/ICONST_3)
+          4 (.visitInsn v Opcodes/ICONST_4)
+          5 (.visitInsn v Opcodes/ICONST_5)
+          (cond
+            (<= Byte/MIN_VALUE n Byte/MAX_VALUE)
+            (.visitIntInsn v Opcodes/BIPUSH n)
+            (<= Short/MIN_VALUE n Short/MAX_VALUE)
+            (.visitIntInsn v Opcodes/SIPUSH n)
+            :else
+            (.visitLdcInsn v n))))
+
+      (float? x)
+      (let [n (float x)]
+        (condp = n
+          0.0 (.visitInsn v Opcodes/FCONST_0)
+          1.0 (.visitInsn v Opcodes/FCONST_1)
+          2.0 (.visitInsn v Opcodes/FCONST_2)
+          (.visitLdcInsn v n)))
+
+      (nil? x)
+      (.visitInsn v Opcodes/ACONST_NULL)
+
+      (or (instance? Handle x) (string? x))
+      (.visitLdcInsn v x)
+
+      :else
+      (.visitLdcInsn v (util/type x)))))
 
 (defops [invokeinterface invokespecial
          invokestatic invokevirtual]
