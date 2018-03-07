@@ -102,6 +102,12 @@ lein test
 
 Or, `lein test-all` for all supported Clojure versions.
 
+The tests can also be run against all supported Java versions (via [`docker`][docker]) with:
+
+``` bash
+./test-all-jdk.sh
+```
+
 ### Similar libraries
 
   - [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm)
@@ -126,6 +132,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [asm]:     http://asm.ow2.org
 [deps]:    https://github.com/clojure/tools.deps.alpha
 [doc]:     https://jgpc42.github.io/insn/doc
+[docker]:  https://www.docker.com
 [emitfn]:  https://github.com/jgpc42/insn/wiki/Interface-Implementation
 [extasm]:  https://github.com/jgpc42/insn/wiki/Using-External-ASM
 [lein]:    http://github.com/technomancy/leiningen
