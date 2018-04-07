@@ -35,7 +35,8 @@
                          insn/*bytecode-version*) m))))
 
 (defn -main []
-  (let [nses (filter #(re-find #"^insn\..+-test$" (str (ns-name %))) (all-ns))
+  (let [test-ns? #(re-find #"^insn\..+-test$" (str (ns-name %)))
+        nses (filter test-ns? (all-ns))
         versions (cond-> [5 6]
                    (>= jvm 1.7) (conj 7)
                    (>= jvm 1.8) (conj 8)

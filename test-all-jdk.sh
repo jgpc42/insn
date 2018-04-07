@@ -1,6 +1,11 @@
 #! /usr/bin/env bash
 set -e
 
+if ! awk '{ split($3, a, "-"); if (a[1] < "17.05") exit 1 }' < <(docker --version); then
+    >&2 echo 'this script requires docker 17.05 or greater'
+    exit 1
+fi
+
 ns=jgpc42
 insn=$ns/insn
 deps=$insn.deps
