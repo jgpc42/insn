@@ -46,28 +46,29 @@
       prims
       [{:name "invokePrim", :desc prims, :emit body}
        {:name "invoke", :desc objs
-        :emit `[[:aload 0]
-                ~@(mapcat
-                   (clojure.core/fn [i arg]
-                     `[[:aload ~i]
-                       ~@(condp = arg
-                           :long [[:invokestatic `RT "longCast" [`Object :long]]]
-                           :double [[:invokestatic `RT "doubleCast" [`Object :double]]]
-                           nil)
-                       [:ldc nil]
-                       [:astore ~i]])
-                   (next (range))
-                   (butlast prims))
-                [:invokevirtual :this "invokePrim" ~prims]
-                ~@(condp = (last prims)
-                    :long [[:invokestatic `Long "valueOf" [:long `Long]]]
-                    :double [[:invokestatic `Double "valueOf" [:double `Double]]]
-                    nil)
-                [:areturn]]}]
+        :emit [[:aload 0]
+               (vec
+                (mapcat
+                 (clojure.core/fn [i arg]
+                   [[:aload i]
+                    (condp = arg
+                      :long [:invokestatic `RT "longCast" [`Object :long]]
+                      :double [:invokestatic `RT "doubleCast" [`Object :double]]
+                      nil)
+                    [:ldc nil]
+                    [:astore i]])
+                 (next (range))
+                 (butlast prims)))
+               [:invokevirtual :this "invokePrim" prims]
+               (condp = (last prims)
+                 :long [:invokestatic `Long "valueOf" [:long `Long]]
+                 :double [:invokestatic `Double "valueOf" [:double `Double]]
+                 nil)
+               [:areturn]]}]
       vararg?
       [{:name "getRequiredArity", :desc [:int]
-        :emit `[[:ldc ~(dec nargs)]
-                [:ireturn]]}
+        :emit [[:ldc (dec nargs)]
+               [:ireturn]]}
        {:name "doInvoke", :desc objs, :emit body}]
       :else
       [{:name "invoke", :desc objs, :emit body}])))
