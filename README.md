@@ -6,13 +6,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.2.1"]
+[insn "0.3.0"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn {:mvn/version "0.2.1"}}
+{insn {:mvn/version "0.3.0"}}
 ```
 
 [Maven][maven]
@@ -21,7 +21,7 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.2.1</version>
+  <version>0.3.0</version>
 </dependency>
 ```
 
@@ -29,7 +29,7 @@ Java versions 1.6 to 1.9 and Clojure versions 1.7 to 1.9 are currently supported
 
 ### What is it?
 
-This library provides a functional abstraction over [ASM][asm] for generating JVM bytecode. ASM is the library that Clojure itself uses to dynamically compile Clojure code into code that can be run on the JVM. By [default][extasm], this library uses the bundled ASM that comes with Clojure and thus requires no dependencies aside from Clojure itself.
+This library provides a functional abstraction over [ASM][asm] for generating JVM bytecode. ASM is the library that Clojure itself uses to dynamically compile Clojure code into code that can be run on the JVM.
 
 ### Quick start
 
@@ -134,7 +134,6 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [doc]:     https://jgpc42.github.io/insn/doc
 [docker]:  https://www.docker.com
 [emitfn]:  https://github.com/jgpc42/insn/wiki/Interface-Implementation
-[extasm]:  https://github.com/jgpc42/insn/wiki/Using-External-ASM
 [lein]:    http://github.com/technomancy/leiningen
 [maven]:   http://maven.apache.org
 [pdf]:     http://download.forge.objectweb.org/asm/asm4-guide.pdf

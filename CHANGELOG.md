@@ -1,3 +1,8 @@
+## 0.3.0 (2018-04-27)
+
+* Require external ASM dependency to simplify code and support latest bytecode features
+* Generate version 1.6, not 1.7, bytecode by default for JDK 6
+
 ## 0.2.1 (2018-01-25)
 
 * Add support for generating [modules][modules] (requires ASM version >= [`6.0`][asm])
