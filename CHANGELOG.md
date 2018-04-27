@@ -1,3 +1,7 @@
+## 0.3.1 (2018-04-27)
+
+* make requiring `insn.objectweb-asm` a no-op
+
 ## 0.3.0 (2018-04-27)
 
 * Require external ASM dependency to simplify code and support latest bytecode features
