@@ -9,7 +9,7 @@
            [java.io File FileOutputStream]
            [java.lang.reflect Constructor]))
 
-(def ^{:private true, :tag 'long}
+(def ^{:private true, :tag 'double}
   jvm-version
   (-> (System/getProperty "java.specification.version")
       Double/valueOf))
