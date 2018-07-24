@@ -40,7 +40,8 @@
         versions (cond-> [5 6]
                    (>= jvm 1.7) (conj 7)
                    (>= jvm 1.8) (conj 8)
-                   (>= jvm 9) (conj 9))]
+                   (>= jvm 9) (conj 9)
+                   (>= jvm 10) (conj 10))]
     (test/with-test-out
       (print "{")
       (pr :jvm jvm, :clj clj, :bytecode versions)

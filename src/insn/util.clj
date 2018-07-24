@@ -132,7 +132,8 @@
    1.6 Opcodes/V1_6, 6 Opcodes/V1_6
    1.7 Opcodes/V1_7, 7 Opcodes/V1_7
    1.8 Opcodes/V1_8, 8 Opcodes/V1_8
-   9 Opcodes/V9})
+   9 Opcodes/V9
+   10 Opcodes/V10})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
