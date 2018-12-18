@@ -11,11 +11,13 @@
 
   :aliases {"test" ["with-profile" "+test" "run" "-m" "insn.test"]
             "test-all" ["do" "test,"
+                        "with-profile" "+1.10" "test,"
                         "with-profile" "+1.9" "test,"
                         "with-profile" "+1.7" "test"]}
 
   :profiles
   {:1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
    :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
+   :1.10 {:dependencies [[org.clojure/clojure "1.10.0"]]}
    :dev {:dependencies [[javax.xml.ws/jaxws-api "2.3.0"]]}
    :repl {:source-paths ["dev"]}})
