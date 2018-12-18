@@ -4,22 +4,23 @@
             insn.core-test
             insn.clojure-test
             insn.op-test
-            insn.util-test)
+            insn.util-test
+            insn.v7-bytecode-test)
   (:gen-class))
 
 (def clj
-  (-> (apply str ((juxt :major (constantly \.) :minor) *clojure-version*))
-      Double/valueOf))
+  ((juxt :major :minor) *clojure-version*))
 
 (def jvm
-  (-> (System/getProperty "java.specification.version")
-      Double/valueOf))
-
-(when (>= jvm 1.7)
-  (require 'insn.v7-bytecode-test))
+  (->> (.split (System/getProperty "java.specification.version")
+               "\\.")
+       last Long/valueOf))
 
 (when (>= jvm 9)
   (require 'insn.v9-bytecode-test))
+
+(when (>= jvm 11)
+  (require 'insn.v11-bytecode-test))
 
 ;;;
 
@@ -37,11 +38,7 @@
 (defn -main []
   (let [test-ns? #(re-find #"^insn\..+-test$" (str (ns-name %)))
         nses (filter test-ns? (all-ns))
-        versions (cond-> [5 6]
-                   (>= jvm 1.7) (conj 7)
-                   (>= jvm 1.8) (conj 8)
-                   (>= jvm 9) (conj 9)
-                   (>= jvm 10) (conj 10))]
+        versions (vec (range 5 (inc jvm)))]
     (test/with-test-out
       (print "{")
       (pr :jvm jvm, :clj clj, :bytecode versions)

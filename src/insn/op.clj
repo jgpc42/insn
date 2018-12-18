@@ -3,7 +3,7 @@
   (e.g., IF_ICMPEQ) use a dash instead (e.g., if-icmpeq)."
   (:refer-clojure :exclude [compile pop])
   (:require [insn.util :as util])
-  (:import [org.objectweb.asm Handle Opcodes MethodVisitor]
+  (:import [org.objectweb.asm ConstantDynamic Handle Opcodes MethodVisitor]
            [java.lang.reflect Field Method Modifier]))
 
 (defmulti ^:private -op
@@ -121,7 +121,8 @@
   (.visitJumpInsn v &op (util/label-from label)))
 
 (defops [ldc]
-  "Load constant null, int, float, String, Type, or Handle value `x`."
+  "Load constant null, int, float, String, Type, Handle, or
+  ConstantDynamic value `x`."
   [v x]
   (let [x (if (instance? Boolean x)
             (if x 1 0)
@@ -156,7 +157,7 @@
       (nil? x)
       (.visitInsn v Opcodes/ACONST_NULL)
 
-      (or (instance? Handle x) (string? x))
+      (or (instance? Handle x) (instance? ConstantDynamic x) (string? x))
       (.visitLdcInsn v x)
 
       :else
@@ -212,9 +213,9 @@
   sequence of the form specified by the invokeX instructions.
 
   An optional seq of constant arguments `args` may be given and each
-  must be either an Integer, Float, Long, Double, String, ASM Type, or
-  ASM Handle object. These are passed to the bootstrap method. See:
-  https://docs.oracle.com/javase/7/docs/api/java/lang/invoke/package-summary.html"
+  must be either an Integer, Float, Long, Double, String, ASM Type, ASM
+  Handle, or ASM ConstantDynamic object. These are passed to the
+  bootstrap method."
   ([v mname desc boot] (&fn v mname desc boot []))
   ([v mname desc boot args]
    (let [boot (if (sequential? boot)

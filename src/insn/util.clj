@@ -1,7 +1,7 @@
 (ns insn.util
   "Bytecode and ASM utilities."
   (:refer-clojure :exclude [sort type])
-  (:import [org.objectweb.asm Handle Label Opcodes Type]
+  (:import [org.objectweb.asm ConstantDynamic Handle Label Opcodes Type]
            [clojure.lang AFunction Keyword Sequential Symbol]))
 
 (defprotocol LabelArray
@@ -133,7 +133,8 @@
    1.7 Opcodes/V1_7, 7 Opcodes/V1_7
    1.8 Opcodes/V1_8, 8 Opcodes/V1_8
    9 Opcodes/V9
-   10 Opcodes/V10})
+   10 Opcodes/V10
+   11 Opcodes/V11})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
@@ -248,6 +249,17 @@
   "Return the ASM sort number of the given type."
   [x]
   (.getSort ^Type (type x)))
+
+(defn constant-dynamic
+  "Return an ASM ConstantDynamic object."
+  ([cname ftype boot]
+   (constant-dynamic cname ftype boot []))
+  ([cname ftype boot args]
+   (let [boot (if (sequential? boot)
+                (apply handle boot)
+                boot)]
+     (ConstantDynamic. (name cname) (type-desc ftype)
+                       boot (object-array args)))))
 
 ;;;
 
