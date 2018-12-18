@@ -24,15 +24,15 @@
 
 (def ^{:doc "The internal class name of the class being generated."
        :dynamic true}
-  *this* ::unbound)
+  *this* nil)
 
 (def ^{:doc "The internal superclass name of the class being generated."
        :dynamic true}
-  *super* ::unbound)
+  *super* nil)
 
 (def ^{:doc "The auto-generated labels of the method being emitted."
        :dynamic true}
-  *labels* ::unbound)
+  *labels* nil)
 
 ;;;
 
@@ -177,7 +177,7 @@
   [x]
   (if (instance? Label x)
     x
-    (if (= ::unbound *labels*)
+    (if (not *labels*)
       (throw (IllegalStateException.
               "auto-generated labels only available when emitting method bytecode"))
       (or (get @*labels* x)
@@ -273,7 +273,10 @@
   Class
   (class-desc [c] (class-desc (.getName c)))
   Keyword
-  (class-desc [k] @(check-valid "class keyword" class-keyword? k))
+  (class-desc [k]
+    (or @(check-valid "class keyword" class-keyword? k)
+        (throw (IllegalStateException.
+                (str k " class name proxy is only bound during bytecode emission")))))
   String
   (class-desc [s]
     (if (.contains s ".")
