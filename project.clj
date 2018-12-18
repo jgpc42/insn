@@ -1,4 +1,4 @@
-(defproject insn "0.3.2-SNAPSHOT"
+(defproject insn "0.4.0"
   :description "Functional JVM bytecode generation for Clojure."
   :url "https://github.com/jgpc42/insn"
   :license {:name "Eclipse Public License"

@@ -1,3 +1,12 @@
+## 0.4.0 (2018-12-17)
+
+* Upgrade to ASM 7.0
+* Support JDK 11
+* Drop explicit support for Java 6 and 7
+* Add support for generating constant dynamic values
+* Improve error message when `:this` and `:super` class name proxies are unbound
+* BUGFIX: correct typo mapping `:deprecated` to `ACC_BRIDGE` instead of `ACC_DEPRECATED`
+
 ## 0.3.1 (2018-04-27)
 
 * Make requiring `insn.objectweb-asm` a no-op

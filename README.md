@@ -6,13 +6,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.3.1"]
+[insn "0.4.0"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn {:mvn/version "0.3.1"}}
+{insn {:mvn/version "0.4.0"}}
 ```
 
 [Maven][maven]
@@ -21,11 +21,11 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.3.1</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
-Java versions 1.6 to 1.9 and Clojure versions 1.7 to 1.9 are currently supported.
+Java versions 8 to 11 and Clojure versions 1.7 to 1.10 are currently supported.
 
 ### What is it?
 
@@ -111,8 +111,7 @@ The tests can also be run against all supported Java versions (via [`docker`][do
 ### Similar libraries
 
   - [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm)
-    * Does not provide an API to all bytecode instructions, only the ones needed for Clojure code compilation.
-    * Currently does not support annotations.
+    * Does not provide a general ASM API.
   - [mage](https://github.com/nasser/mage) and [magic](https://github.com/nasser/magic)
     * Clojure-CLR only.
 
