@@ -54,7 +54,7 @@
   {:abstract Opcodes/ACC_ABSTRACT
    :annotation Opcodes/ACC_ANNOTATION
    :bridge Opcodes/ACC_BRIDGE
-   :deprecated Opcodes/ACC_BRIDGE
+   :deprecated Opcodes/ACC_DEPRECATED
    :enum Opcodes/ACC_ENUM
    :final Opcodes/ACC_FINAL
    :interface Opcodes/ACC_INTERFACE
