@@ -46,5 +46,6 @@
     (doseq [ver versions]
       (binding [insn/*bytecode-version* ver]
         (apply test/run-tests nses)))
-    (pr :passed @passed)
-    (println "}")))
+    (test/with-test-out
+      (pr :passed @passed)
+      (println "}"))))
