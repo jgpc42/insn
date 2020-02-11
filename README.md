@@ -135,5 +135,5 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [emitfn]:  https://github.com/jgpc42/insn/wiki/Interface-Implementation
 [lein]:    http://github.com/technomancy/leiningen
 [maven]:   http://maven.apache.org
-[pdf]:     http://download.forge.objectweb.org/asm/asm4-guide.pdf
+[pdf]:     https://asm.ow2.io/asm4-guide.pdf
 [wiki]:    https://github.com/jgpc42/insn/wiki
