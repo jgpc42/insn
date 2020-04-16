@@ -16,6 +16,8 @@
                "\\.")
        last Long/valueOf))
 
+(def max-version 12)
+
 (when (>= jvm 9)
   (require 'insn.v9-bytecode-test))
 
@@ -38,7 +40,7 @@
 (defn -main []
   (let [test-ns? #(re-find #"^insn\..+-test$" (str (ns-name %)))
         nses (filter test-ns? (all-ns))
-        versions (vec (range 5 (inc jvm)))]
+        versions (vec (range 5 (min (inc max-version) (inc jvm))))]
     (test/with-test-out
       (print "{")
       (pr :jvm jvm, :clj clj, :bytecode versions)
