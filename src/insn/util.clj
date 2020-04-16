@@ -20,6 +20,10 @@
   (type [x]
     "Return an ASM Type object."))
 
+(defprotocol TypeSig
+  (type-sig [x]
+    "Return an internal type signature string."))
+
 ;;;
 
 (def ^{:doc "The internal class name of the class being generated."
@@ -353,3 +357,9 @@
   (type [s] (Type/getType ^String (type-desc s)))
   Type
   (type [t] t))
+
+(extend-protocol TypeSig
+  nil
+  (type-sig [_])
+  String
+  (type-sig [s] s))

@@ -6,7 +6,8 @@
            [java.lang.annotation Retention RetentionPolicy Target ElementType]
            [javax.annotation.processing SupportedOptions]
            [javax.xml.ws WebServiceRef WebServiceRefs]
-           [javax.xml.ws.soap Addressing]))
+           [javax.xml.ws.soap Addressing]
+           [java.lang.reflect ParameterizedType]))
 
 (defn make [& {:as m}]
   (core/new-instance m))
@@ -333,3 +334,22 @@
                                   [:invokevirtual String "concat"]
                                   [:areturn]]}]})]
       (is (= "foo-bc" (.bar obj (.toCharArray "abcd")))))))
+
+(deftest test-signature
+  (let [
+        ;; List<String> foo
+        field-sig "Ljava/util/List<Ljava/lang/String;>;"
+
+        ;; <T extends Iterable> List<T> bar (List<T> arg)
+        method-sig "<T::Ljava/lang/Iterable;>(Ljava/util/List<TT;>;)Ljava/util/List<TT;>;"
+
+        List java.util.List
+        klass (core/define
+                {:flags [:public]
+                 :fields [{:flags [:public], :name "foo", :type List, :signature field-sig}]
+                 :methods [{:flags [:public], :name "bar", :desc [List List] :signature method-sig
+                            :emit [[:aload 0] [:areturn]]}]})]
+    (is (-> klass (.getField "foo")
+            ^ParameterizedType (.getGenericType) .getActualTypeArguments first (= String)))
+    (is (= "T" (-> klass (.getMethod "bar" (into-array Class [List]))
+                   ^ParameterizedType (.getGenericReturnType) .getActualTypeArguments first str)))))

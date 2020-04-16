@@ -168,7 +168,7 @@
                  ClassWriter/COMPUTE_MAXS)
 
         cv (doto (ClassWriter. wflags)
-             (.visit bversion (util/flags flags) this nil
+             (.visit bversion (util/flags flags) this (util/type-sig (:signature t))
                      super (into-array String ifaces)))
 
         ctor? #(= "<init>" (util/method-name (:name %)))
@@ -199,7 +199,7 @@
                  "F" (float v), "D" (double v)
                  v))
         fv (.visitField cv (util/flags flags)
-                        (name (:name f)) ftype nil fval)]
+                        (name (:name f)) ftype (util/type-sig (:signature f)) fval)]
     (ann/visit fv (:annotations f))
     (.visitEnd fv)))
 
@@ -223,7 +223,7 @@
                (if (:desc m)
                  (util/method-desc (:desc m))
                  "()V"))
-        mv (.visitMethod cv (util/flags flags) mname desc nil nil)
+        mv (.visitMethod cv (util/flags flags) mname desc (util/type-sig (:signature m)) nil)
         emit (if (fn? (:emit m))
                (:emit m)
                (op/compile (:emit m)))]
