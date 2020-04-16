@@ -54,6 +54,9 @@
 
     :annotations  map or sequence of tuples, described below.
 
+    :signature    generic type information - usually only ever needed
+                  for interop with Java libraries (reflection, etc.)
+
     :fields       sequence of field maps, described below.
 
     :methods      sequence of method maps, described below.
@@ -62,7 +65,8 @@
                   compatibility, a float of major.minor may be given
                   for versions 1.1 through 1.8.
 
-  Each field and method can also be given :annotations as per above.
+  Each field and method can also be given :annotations and a :signature
+  as per above.
 
   Some examples:
 
