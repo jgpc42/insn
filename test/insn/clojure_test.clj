@@ -1,6 +1,15 @@
 (ns insn.clojure-test
   (:require [clojure.test :refer :all]
+            [insn.clojure :as bc]
             [demo.core :as demo]))
+
+(deftest test-simple
+  (is (= 43
+         ((bc/fn [x]
+            [[:aload 1]
+             [:invokestatic clojure.lang.Numbers "inc" [Object Number]]
+             [:areturn]])
+          42))))
 
 (set! *unchecked-math* :warn-on-boxed)
 (set! *warn-on-reflection* true)

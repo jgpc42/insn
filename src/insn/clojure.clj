@@ -43,7 +43,7 @@
                    (conj (mapv tag sig) (tag sig)))
         body (if (vector? body) `(op/compile ~body) body)]
     (cond
-      prims
+      (and prims (not= prims objs))
       [{:name "invokePrim", :desc prims, :emit body}
        {:name "invoke", :desc objs
         :emit [[:aload 0]
