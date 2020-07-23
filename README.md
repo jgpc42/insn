@@ -4,7 +4,7 @@
 <details>
   <summary>Click to show</summary>
 
-**Note**: this library uses a recent version of [`asm`][asm-jar]. Unfortunately, many popular [libraries][codox] still depend on [`asm-all`][asm-all], which has not been updated since ASM `5.2` (released `2016-12-23`). If you depend (either directly or indirectly) on a library that does, this can lead to errors when attempting to load `insn` due to being unable to resolve newer class symbols. These look like: `Syntax error compiling at (insn/util.clj:...)`, or similar.
+**Note**: this library uses a recent version of [`asm`][asm-jar]. Unfortunately, many popular libraries still depend on much older `asm` releases. If you depend (either directly or indirectly) on a library that does, this can lead to errors when attempting to load `insn` due to being unable to resolve newer class symbols. These look like: `Syntax error compiling at (insn/util.clj:...)`, or similar.
 
 In a future version of `insn` this may be alleviated by using a tool such as [`mranderson`][mranderson].
 
@@ -135,9 +135,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 
 [asm]:         http://asm.ow2.org
-[asm-all]:     https://mvnrepository.com/artifact/org.ow2.asm/asm-all
 [asm-jar]:     https://mvnrepository.com/artifact/org.ow2.asm/asm
-[codox]:       https://clojars.org/codox/versions/0.10.7
 [deps]:        https://github.com/clojure/tools.deps.alpha
 [doc]:         https://jgpc42.github.io/insn/doc
 [docker]:      https://www.docker.com
