@@ -4,7 +4,14 @@
 <details>
   <summary>Click to show</summary>
 
-**Note**: this library uses a recent version of [`asm`][asm-jar]. Unfortunately, many popular libraries still depend on much older `asm` releases. If you depend (either directly or indirectly) on a library that does, this can lead to errors when attempting to load `insn` due to being unable to resolve newer class symbols. These look like: `Syntax error compiling at (insn/util.clj:...)`, or similar.
+**Note**: this library uses a recent version of [`asm`][asm-jar]. Unfortunately, many popular libraries still depend on much older `asm` releases. If you depend (either directly or indirectly) on a library that does, this can lead to errors when attempting to load `insn` due to being unable to resolve newer class symbols or fields. These look like: `Syntax error compiling at (insn/util.clj:...)`, or similar.
+
+You can work around this error by adding an exclusion to the conflicting dependency. Leiningen, for example:
+
+```clojure
+(defproject #_...
+  :dependencies [[dep.uses.asm "0.42" :exclusions [org.ow2.asm/asm]]])
+```
 
 In a future version of `insn` this may be alleviated by using a tool such as [`mranderson`][mranderson].
 
