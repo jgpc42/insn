@@ -1,1 +1,2 @@
-{:deps {org.ow2.asm/asm {:mvn/version "7.0"}}}
+{:deps
+ {org.ow2.asm/asm {:mvn/version "7.0"}}}

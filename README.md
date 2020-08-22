@@ -4,16 +4,7 @@
 <details>
   <summary>Click to show</summary>
 
-**Note**: this library uses a recent version of [`asm`][asm-jar]. Unfortunately, many popular libraries still depend on much older `asm` releases. If you depend (either directly or indirectly) on a library that does, this can lead to errors when attempting to load `insn` due to being unable to resolve newer class symbols or fields. These look like: `Syntax error compiling at (insn/util.clj:...)`, or similar.
-
-You can work around this error by adding an exclusion to the conflicting dependency. Leiningen, for example:
-
-```clojure
-(defproject #_...
-  :dependencies [[dep.uses.asm "0.42" :exclusions [org.ow2.asm/asm]]])
-```
-
-In a future version of `insn` this may be alleviated by using a tool such as [`mranderson`][mranderson].
+> :warning: This library uses a recent version of [`asm`][asm-jar] which can cause dependency issues. [See here][asm-ver] for more.
 
 [Leiningen][lein]
 
@@ -24,7 +15,7 @@ In a future version of `insn` this may be alleviated by using a tool such as [`m
 [tools.deps][deps]
 
 ```clojure
-{insn {:mvn/version "0.4.0"}}
+{insn/insn {:mvn/version "0.4.0"}}
 ```
 
 [Maven][maven]
@@ -135,7 +126,7 @@ The tests can also be run against all supported Java versions (via [`docker`][do
 
 ### License
 
-Copyright © 2020 Justin Conklin
+Copyright © 2017-2020 Justin Conklin
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
@@ -143,6 +134,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 [asm]:         http://asm.ow2.org
 [asm-jar]:     https://mvnrepository.com/artifact/org.ow2.asm/asm
+[asm-ver]:     https://github.com/jgpc42/insn/wiki/Dependency-Problems
 [deps]:        https://github.com/clojure/tools.deps.alpha
 [doc]:         https://jgpc42.github.io/insn/doc
 [docker]:      https://www.docker.com

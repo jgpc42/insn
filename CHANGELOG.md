@@ -1,3 +1,10 @@
+## 0.5.0 (202X-XX-XX)
+
+* Upgrade to ASM X.X
+* Support JDK 1X
+* Add `deps.edn` file
+* Support for generic type information interop via the `:signature` key and new protocol `TypeSig`
+
 ## 0.4.0 (2018-12-17)
 
 * Upgrade to ASM 7.0
@@ -55,7 +62,7 @@
 
 
 
-[asm]:      http://asm.ow2.org/history.html
+[asm]:      https://asm.ow2.io/versions.html
 [mage]:     https://github.com/nasser/mage
 [modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
 [semver]:   http://semver.org/

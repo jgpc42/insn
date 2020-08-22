@@ -1,11 +1,15 @@
-(defproject insn "0.4.0"
+(def dependencies
+  (->> "deps.edn" slurp read-string
+       :deps (mapv #(vector (% 0) (:mvn/version (% 1))))
+       (into '[[org.clojure/clojure "1.8.0"]])))
+
+(defproject insn "0.5.0-SNAPSHOT"
   :description "Functional JVM bytecode generation for Clojure."
   :url "https://github.com/jgpc42/insn"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.ow2.asm/asm "7.0"]]
+  :dependencies ~dependencies
 
   :min-lein-version "2.0.0"
 
