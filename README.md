@@ -64,7 +64,7 @@ The class is specified as a map. The class fields and methods are sequences of m
                      [:lreturn]]}]})
 ```
 
-Above, we described in data the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. (Note: unlike Java, the method return value is specified via the `:desc` key as last element). If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading chapter 3 of the excellent tutorial pdf from the ASM [site][pdf].
+Above, we described in data the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. (Note: unlike Java, the method return value is specified via the `:desc` key as the last element). If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading chapter 3 of the excellent tutorial pdf from the ASM [site][pdf].
 
 `:emit` can also be a fn that is passed the ASM `MethodVisitor` object to write the method bytecode as shown in [this example][emitfn].
 
