@@ -43,9 +43,9 @@ Let's begin by creating a simple class, equivalent to the following Java code.
 package my.pkg;
 
 public class Adder {
-    public static long VALUE = 42;
-    public long add (long n) {
-        return VALUE + n;
+    public static int VALUE = 42;
+    public long add (int n) {
+        return (long) (VALUE + n);
     }
 }
 ```
@@ -55,15 +55,16 @@ The class is specified as a map. The class fields and methods are sequences of m
 ```clojure
 (def class-data
   {:name 'my.pkg.Adder
-   :fields [{:flags #{:public :static}, :name "VALUE", :type :long, :value 42}]
-   :methods [{:flags #{:public}, :name "add", :desc [:long :long]
-              :emit [[:getstatic :this "VALUE" :long]
-                     [:lload 1]
-                     [:ladd]
+   :fields [{:flags #{:public :static}, :name "VALUE", :type :int, :value 42}]
+   :methods [{:flags #{:public}, :name "add", :desc [:int :long]
+              :emit [[:getstatic :this "VALUE" :int]
+                     [:iload 1]
+                     [:iadd]
+                     [:i2l]
                      [:lreturn]]}]})
 ```
 
-Above, we described in data exactly the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading chapter 3 of the excellent tutorial pdf from the ASM [site][pdf].
+Above, we described in data the same information expressed by the Java code, except the method body was given as a sequence of bytecode instructions. (Note: unlike Java, the method return value is specified via the `:desc` key as last element). If you aren't fluent in JVM bytecode instruction syntax, I would suggest reading chapter 3 of the excellent tutorial pdf from the ASM [site][pdf].
 
 `:emit` can also be a fn that is passed the ASM `MethodVisitor` object to write the method bytecode as shown in [this example][emitfn].
 
@@ -141,6 +142,5 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [emitfn]:      https://github.com/jgpc42/insn/wiki/Interface-Implementation
 [lein]:        http://github.com/technomancy/leiningen
 [maven]:       http://maven.apache.org
-[mranderson]:  https://github.com/benedekfazekas/mranderson
 [pdf]:         https://asm.ow2.io/asm4-guide.pdf
 [wiki]:        https://github.com/jgpc42/insn/wiki
