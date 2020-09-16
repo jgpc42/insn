@@ -122,6 +122,8 @@ The tests can also be run against all supported Java versions (via [`docker`][do
 
 ### Projects using insn
 
+  - [tech.datatype](https://github.com/techascent/tech.datatype)
+    * Efficient N-dimensional numerics across a range of primitive datatypes and containers.
   - [jmh-clojure](https://github.com/jgpc42/jmh-clojure)
     * Clojure bridge to JMH benchmarking via bytecode generation.
 
