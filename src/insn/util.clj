@@ -69,6 +69,7 @@
    :private Opcodes/ACC_PRIVATE
    :protected Opcodes/ACC_PROTECTED
    :public Opcodes/ACC_PUBLIC
+   :record Opcodes/ACC_RECORD
    :static Opcodes/ACC_STATIC
    :static-phase Opcodes/ACC_STATIC_PHASE
    :strict Opcodes/ACC_STRICT
@@ -138,7 +139,12 @@
    1.8 Opcodes/V1_8, 8 Opcodes/V1_8
    9 Opcodes/V9
    10 Opcodes/V10
-   11 Opcodes/V11})
+   11 Opcodes/V11
+   12 Opcodes/V12
+   13 Opcodes/V13
+   14 Opcodes/V14
+   15 Opcodes/V15
+   16 Opcodes/V16})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."

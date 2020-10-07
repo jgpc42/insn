@@ -1,4 +1,5 @@
 [![Clojars Project](https://img.shields.io/clojars/v/insn.svg)](https://clojars.org/insn)
+[![](https://github.com/jgpc42/insn/workflows/Test%20runner/badge.svg)][ci]
 
 ### Dependency and version information
 <details>
@@ -28,7 +29,7 @@
 </dependency>
 ```
 
-JDK versions 8 to 14 and Clojure versions 1.7 to 1.10 are currently supported.
+JDK versions 8 to 14 and Clojure versions 1.7 to 1.10 are currently [supported][ci].
 </details>
 
 ### What is it?
@@ -138,6 +139,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [asm]:         http://asm.ow2.org
 [asm-jar]:     https://mvnrepository.com/artifact/org.ow2.asm/asm
 [asm-ver]:     https://github.com/jgpc42/insn/wiki/Dependency-Problems
+[ci]:          https://github.com/jgpc42/insn/blob/master/.github/workflows/test.yml
 [deps]:        https://github.com/clojure/tools.deps.alpha
 [doc]:         https://jgpc42.github.io/insn/doc
 [docker]:      https://www.docker.com
