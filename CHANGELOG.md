@@ -1,13 +1,13 @@
-## 0.5.0 (202X-XX-XX)
+## 0.5.0 (2020-10-07)
 
-* Upgrade to ASM X.X
-* Support JDK 1X
+* Upgrade to [ASM 9.0][asm]
+* Explicit support for JDK 12, 13, and 14
 * Add `deps.edn` file
 * Support for generic type information interop via the `:signature` key and new protocol `TypeSig`
 
 ## 0.4.0 (2018-12-17)
 
-* Upgrade to ASM 7.0
+* Upgrade to [ASM 7.0][asm]
 * Support JDK 11
 * Drop explicit support for Java 6 and 7
 * Add support for generating constant dynamic values
