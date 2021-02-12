@@ -333,7 +333,8 @@
   `handler` against throwable `etype`."
   [^MethodVisitor v start end handler etype]
   (let [[start end handler] (map util/label-from [start end handler])]
-    (.visitTryCatchBlock v start end handler (util/class-desc etype))))
+    (.visitTryCatchBlock v start end handler (when-not (nil? etype)
+                                               (util/class-desc etype)))))
 
 (defn visit-label!
   "Set label offset to current visitor position."
