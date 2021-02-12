@@ -193,6 +193,35 @@
       (is (= -1 (.go obj nil 0)))
       (is (= -2 (.go obj "a" 1))))))
 
+(deftest test-trycatch-any
+  (let [obj (make
+             :fields [{:flags [:public], :name "i", :type :int}]
+             :methods [{:name "go", :desc [String :int :int Throwable]
+                        :emit [[:ldc nil]
+                               [:astore 4]
+                               [:mark :BEGIN]
+                               [:aload 1]
+                               [:iload 2]
+                               [:invokevirtual String "charAt"]
+                               [:pop]
+                               [:mark :END]
+                               [:goto :POST]
+                               [:mark :ERROR]
+                               [:astore 4]
+                               [:mark :POST]
+                               [:aload 0]
+                               [:iload 3]
+                               [:putfield :this "i" :int]
+                               [:aload 4]
+                               [:areturn]
+                               [:trycatch :BEGIN :END :ERROR nil]]}])]
+    (is (nil? (.go obj "a" 0 1)))
+    (is (= 1 (.i obj)))
+    (is (instance? IndexOutOfBoundsException (.go obj "a" 1 2)))
+    (is (= 2 (.i obj)))
+    (is (instance? NullPointerException (.go obj nil 0 1)))
+    (is (= 1 (.i obj)))))
+
 (deftest test-virtual
   (let [itype (core/define
                 {:flags #{:public :interface}
