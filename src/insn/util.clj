@@ -1,8 +1,56 @@
 (ns insn.util
   "Bytecode and ASM utilities."
   (:refer-clojure :exclude [sort type])
-  (:import [org.objectweb.asm ConstantDynamic Handle Label Opcodes Type]
+  (:import [org.objectweb.asm Handle Label Opcodes Type]
            [clojure.lang AFunction Keyword Sequential Symbol]))
+
+(defonce ^:private dynalock (Object.))
+
+(defn ^:internal ^:no-doc dynaload
+  "Based on code from https://github.com/clojure/spec-alpha2. Used to
+  require vars from feature namespaces that use classes that may not
+  exist in older ASM versions."
+  [feature s]
+  (let [ns (namespace s)]
+    (assert ns)
+    (try
+      (locking dynalock
+        (require (symbol ns)))
+      (catch Exception e
+        (let [^String msg
+              (or (some->
+                   ^Throwable (some #(or (and (instance? ClassNotFoundException %) %)
+                                         (and (nil? %) e))
+                                    (iterate #(and % (.getCause ^Throwable %)) e))
+                   .getMessage)
+                  "")]
+          (if (.startsWith msg "org.objectweb.asm.")
+            (throw (ex-info (str "Unsupported ASM feature: " feature)
+                            {:feature feature :var s} e))
+            (throw e)))))
+    (let [v (resolve s)]
+      (assert v)
+      v)))
+
+(defn ^:internal ^:no-doc get-opcode
+  "Try and get the integer opcode `fname` from the ASM `Opcodes' class.
+  Return it if exists, else return `default`. Used to get opcodes that
+  may not exist in older ASM versions."
+  ([fname] (get-opcode fname nil))
+  ([fname default]
+   (try (.getInt (.getField Opcodes fname) nil)
+        (catch NoSuchFieldException _ default))))
+
+(defn ^:internal ^:no-doc import-class
+  "Try and import the package-prefixed class name `cname`. Returns a
+  class object or `default` if not found. Used to import ASM classes
+  that may not exist in older ASM versions."
+  ([cname] (import-class cname nil))
+  ([cname default]
+   (try (Class/forName cname)
+        (catch ClassNotFoundException _ default))))
+
+;;;
 
 (defprotocol LabelArray
   (label-array [x]
@@ -69,7 +117,6 @@
    :private Opcodes/ACC_PRIVATE
    :protected Opcodes/ACC_PROTECTED
    :public Opcodes/ACC_PUBLIC
-   :record Opcodes/ACC_RECORD
    :static Opcodes/ACC_STATIC
    :static-phase Opcodes/ACC_STATIC_PHASE
    :strict Opcodes/ACC_STRICT
@@ -79,7 +126,8 @@
    :transient Opcodes/ACC_TRANSIENT
    :transitive Opcodes/ACC_TRANSITIVE
    :varargs Opcodes/ACC_VARARGS
-   :volatile Opcodes/ACC_VOLATILE})
+   :volatile Opcodes/ACC_VOLATILE
+   :record (get-opcode "ACC_RECORD")})
 
 (def ^:no-doc handle-keyword?
   {:getfield Opcodes/H_GETFIELD
@@ -138,13 +186,13 @@
    1.7 Opcodes/V1_7, 7 Opcodes/V1_7
    1.8 Opcodes/V1_8, 8 Opcodes/V1_8
    9 Opcodes/V9
-   10 Opcodes/V10
-   11 Opcodes/V11
-   12 Opcodes/V12
-   13 Opcodes/V13
-   14 Opcodes/V14
-   15 Opcodes/V15
-   16 Opcodes/V16})
+   10 (get-opcode "V10")
+   11 (get-opcode "V11")
+   12 (get-opcode "V12")
+   13 (get-opcode "V13")
+   14 (get-opcode "V14")
+   15 (get-opcode "V15")
+   16 (get-opcode "V16")})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
@@ -260,16 +308,18 @@
   [x]
   (.getSort ^Type (type x)))
 
-(defn constant-dynamic
-  "Return an ASM ConstantDynamic object."
-  ([cname ftype boot]
-   (constant-dynamic cname ftype boot []))
-  ([cname ftype boot args]
-   (let [boot (if (sequential? boot)
-                (apply handle boot)
-                boot)]
-     (ConstantDynamic. (name cname) (type-desc ftype)
-                       boot (object-array args)))))
+(let [fref (delay (dynaload "constant-dynamic" 'insn.v11-feature/constant-dynamic))]
+  (defn constant-dynamic
+    "Return an ASM ConstantDynamic object. Note that using these values
+    require version 11 bytecode and above."
+    ([cname ftype boot]
+     (constant-dynamic cname ftype boot []))
+    ([cname ftype boot args]
+     (let [boot (if (sequential? boot)
+                  (apply handle boot)
+                  boot)]
+       (@fref (name cname) (type-desc ftype)
+              boot (object-array args))))))
 
 ;;;
 

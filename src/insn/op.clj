@@ -3,8 +3,17 @@
   (e.g., IF_ICMPEQ) use a dash instead (e.g., if-icmpeq)."
   (:refer-clojure :exclude [compile pop])
   (:require [insn.util :as util])
-  (:import [org.objectweb.asm ConstantDynamic Handle Opcodes MethodVisitor]
+  (:import [org.objectweb.asm Handle Opcodes MethodVisitor]
            [java.lang.reflect Field Method Modifier]))
+
+(let [klass (util/import-class "org.objectweb.asm.ConstantDynamic")]
+  (defn- constant-dynamic?
+    "Returns true if constant dynamic values are supported and `x` is an
+    ASM ConstantDynamic object."
+    [x]
+    (and klass (instance? klass x))))
+
+;;;
 
 (defmulti ^:private -op
   "Return an op data map representing a op visitor fn to be called
@@ -157,7 +166,7 @@
       (nil? x)
       (.visitInsn v Opcodes/ACONST_NULL)
 
-      (or (instance? Handle x) (instance? ConstantDynamic x) (string? x))
+      (or (instance? Handle x) (constant-dynamic? x) (string? x))
       (.visitLdcInsn v x)
 
       :else
@@ -330,7 +339,8 @@
 
 (defn trycatch
   "Mark region between `start` and `end` labels as protected by label
-  `handler` against throwable `etype`."
+  `handler` against throwable `etype`. To handle all exceptions, pass
+  nil as the throwable type."
   [^MethodVisitor v start end handler etype]
   (let [[start end handler] (map util/label-from [start end handler])]
     (.visitTryCatchBlock v start end handler (when-not (nil? etype)
