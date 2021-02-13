@@ -1,3 +1,8 @@
+## 0.5.1 (2021-02-12)
+
+* Load some ASM Opcodes and classes dynamically to support using library with older ASM versions
+* BUGFIX: allow `nil` as the exception type of `:trycatch` to enable proper `try/finally` support ([#7][issue7])
+
 ## 0.5.0 (2020-10-07)
 
 * Upgrade to [ASM 9.0][asm]
@@ -63,6 +68,7 @@
 
 
 [asm]:      https://asm.ow2.io/versions.html
+[issue7]:   https://github.com/jgpc42/insn/issues/7
 [mage]:     https://github.com/nasser/mage
 [modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
 [semver]:   http://semver.org/

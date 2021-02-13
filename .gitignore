@@ -3,5 +3,6 @@
 .lein-*
 .nrepl-*
 pom.xml.asc
+test-all-asm.sh
 wiki/
 target/
