@@ -65,6 +65,10 @@
                   compatibility, a float of major.minor may be given
                   for versions 1.1 through 1.8.
 
+    :source       string denoting the original source file - optional.
+
+    :debug        string of arbitrary debug information - optional.
+
   Each field and method can also be given :annotations and a :signature
   as per above.
 
@@ -173,7 +177,8 @@
 
         cv (doto (ClassWriter. wflags)
              (.visit bversion (util/flags flags) this (util/type-sig (:signature t))
-                     super (into-array String ifaces)))
+                     super (into-array String ifaces))
+             (.visitSource (:source t) (:debug t)))
 
         ctor? #(= "<init>" (util/method-name (:name %)))
         t (if (or (not concrete?) (some ctor? (:methods t)))
