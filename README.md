@@ -10,13 +10,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.5.1"]
+[insn "0.5.2"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn/insn {:mvn/version "0.5.1"}}
+{insn/insn {:mvn/version "0.5.2"}}
 ```
 
 [Maven][maven]
@@ -25,7 +25,7 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 
@@ -98,7 +98,7 @@ Since, by default, `define` loads the class using Clojure's own `DynamicClassLoa
 
 ### More information
 
-For additional usage examples and topics, see the [wiki][wiki]. For a complete reference, see the [docs][doc].
+For additional usage examples and topics, see the [wiki][wiki]. For a complete reference, see the [docs][doc]. The fairly comprehensive [test suite][tests] is also demonstrative and should be easy to follow.
 
 ### Running the tests
 
@@ -147,4 +147,5 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [lein]:        http://github.com/technomancy/leiningen
 [maven]:       http://maven.apache.org
 [pdf]:         https://asm.ow2.io/asm4-guide.pdf
+[tests]:       https://github.com/jgpc42/insn/blob/master/test/insn/core_test.clj
 [wiki]:        https://github.com/jgpc42/insn/wiki

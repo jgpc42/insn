@@ -1,3 +1,7 @@
+## 0.5.2 (2021-03-21)
+
+* Support giving `:source` file name and `:debug` information with `insn.core/visit` ([#9][issue9])
+
 ## 0.5.1 (2021-02-12)
 
 * Load some ASM Opcodes and classes dynamically to support using library with older ASM versions
@@ -69,6 +73,7 @@
 
 [asm]:      https://asm.ow2.io/versions.html
 [issue7]:   https://github.com/jgpc42/insn/issues/7
+[issue9]:   https://github.com/jgpc42/insn/issues/9
 [mage]:     https://github.com/nasser/mage
 [modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
 [semver]:   http://semver.org/
