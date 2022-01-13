@@ -130,7 +130,7 @@ The tests can also be run against all supported Java versions (via [`docker`][do
 
 ### License
 
-Copyright © 2017-2021 Justin Conklin
+Copyright © 2017-2022 Justin Conklin
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
