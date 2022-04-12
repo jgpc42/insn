@@ -5,7 +5,8 @@
             insn.clojure-test
             insn.op-test
             insn.util-test
-            insn.v7-bytecode-test)
+            insn.v7-bytecode-test
+            insn.v8-bytecode-test)
   (:gen-class))
 
 (def clj

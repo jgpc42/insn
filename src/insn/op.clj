@@ -179,9 +179,13 @@
 
   If the type descriptor is not provided or is a numeric arity, it will
   be determined through reflection. In this case, the class must be
-  given as a string or Class object."
+  given as a string or Class object.
+
+  The last argument `iface` can be used to specify the method's owner
+  class is an interface (e.g., a default implementation)."
   ([v cls mname] (&fn v cls mname -1))
-  ([v cls mname desc-or-arity]
+  ([v cls mname desc-or-arity] (&fn v cls mname desc-or-arity false))
+  ([v cls mname desc-or-arity iface]
    (let [mname (util/method-name mname)
          desc (if (number? desc-or-arity)
                 (let [cls (if (class? cls)
@@ -211,7 +215,8 @@
                       (throw (ex-info msg {:candidates descs})))))
                 desc-or-arity)]
      (.visitMethodInsn v &op (util/class-desc cls)
-                       mname (util/method-desc desc)))))
+                       mname (util/method-desc desc)
+                       (boolean iface)))))
 
 (defops [invokedynamic]
   "Call bootstrap method `boot` to return callsite for method `mname`
