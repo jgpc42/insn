@@ -10,13 +10,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.5.2"]
+[insn "0.5.3"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn/insn {:mvn/version "0.5.2"}}
+{insn/insn {:mvn/version "0.5.3"}}
 ```
 
 [Maven][maven]
@@ -25,11 +25,11 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.5.2</version>
+  <version>0.5.3</version>
 </dependency>
 ```
 
-JDK versions 8 to 14 and Clojure versions 1.7 to 1.10 are currently [supported][ci].
+JDK versions 8 to 18 and Clojure versions 1.7 to 1.11 are currently [tested against][ci].
 </details>
 
 ### What is it?
@@ -125,6 +125,7 @@ The tests can also be run against all supported Java versions (via [`docker`][do
 
   - [tech.datatype](https://github.com/techascent/tech.datatype)
     * Efficient N-dimensional numerics across a range of primitive datatypes and containers.
+    * Also used by this libraries' successor, [dtype-next](https://github.com/cnuernber/dtype-next).
   - [jmh-clojure](https://github.com/jgpc42/jmh-clojure)
     * Clojure bridge to JMH benchmarking via bytecode generation.
 

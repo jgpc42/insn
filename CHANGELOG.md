@@ -1,3 +1,10 @@
+## 0.5.3 (2022-04-12)
+
+* Upgrade to [ASM 9.3][asm]
+* Explicit support for JDK 15, 16, 17, and 18
+* Explicit support for Clojure 1.11
+* Support passing boolean last argument for method instructions to specify interface ([#11][issue11])
+
 ## 0.5.2 (2021-03-21)
 
 * Support giving `:source` file name and `:debug` information with `insn.core/visit` ([#9][issue9])
@@ -74,6 +81,7 @@
 [asm]:      https://asm.ow2.io/versions.html
 [issue7]:   https://github.com/jgpc42/insn/issues/7
 [issue9]:   https://github.com/jgpc42/insn/issues/9
+[issue11]:  https://github.com/jgpc42/insn/issues/11
 [mage]:     https://github.com/nasser/mage
 [modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
 [semver]:   http://semver.org/
