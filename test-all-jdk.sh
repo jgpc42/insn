@@ -18,6 +18,10 @@ jdks=(
     openjdk:12
     openjdk:13
     openjdk:14
+    openjdk:15
+    openjdk:16
+    openjdk:17
+    openjdk:18
 )
 
 mkdir -p target
