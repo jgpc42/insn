@@ -184,7 +184,7 @@
   The last argument `iface` can be used to specify the method's owner
   class is an interface (e.g., a default implementation)."
   ([v cls mname] (&fn v cls mname -1))
-  ([v cls mname desc-or-arity] (&fn v cls mname desc-or-arity false))
+  ([v cls mname desc-or-arity] (&fn v cls mname desc-or-arity (= &op Opcodes/INVOKEINTERFACE)))
   ([v cls mname desc-or-arity iface]
    (let [mname (util/method-name mname)
          desc (if (number? desc-or-arity)
