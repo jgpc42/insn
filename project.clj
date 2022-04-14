@@ -3,7 +3,7 @@
        :deps (mapv #(vector (% 0) (:mvn/version (% 1))))
        (into '[[org.clojure/clojure "1.8.0"]])))
 
-(defproject insn "0.5.3"
+(defproject insn "0.5.4"
   :description "Functional JVM bytecode generation for Clojure."
   :url "https://github.com/jgpc42/insn"
   :license {:name "Eclipse Public License"

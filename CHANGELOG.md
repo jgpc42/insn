@@ -1,3 +1,7 @@
+## 0.5.4 (2022-04-14)
+
+* BUGFIX: default `iface` value for method instructions should be false *except* for `invokeinterface` ([#12][issue12])
+
 ## 0.5.3 (2022-04-12)
 
 * Upgrade to [ASM 9.3][asm]
@@ -82,6 +86,7 @@
 [issue7]:   https://github.com/jgpc42/insn/issues/7
 [issue9]:   https://github.com/jgpc42/insn/issues/9
 [issue11]:  https://github.com/jgpc42/insn/issues/11
+[issue12]:  https://github.com/jgpc42/insn/issues/12
 [mage]:     https://github.com/nasser/mage
 [modules]:  https://github.com/jgpc42/insn/wiki/Java-9-Modules
 [semver]:   http://semver.org/

@@ -10,13 +10,13 @@
 [Leiningen][lein]
 
 ``` clojure
-[insn "0.5.3"]
+[insn "0.5.4"]
 ```
 
 [tools.deps][deps]
 
 ```clojure
-{insn/insn {:mvn/version "0.5.3"}}
+{insn/insn {:mvn/version "0.5.4"}}
 ```
 
 [Maven][maven]
@@ -25,7 +25,7 @@
 <dependency>
   <groupId>insn</groupId>
   <artifactId>insn</artifactId>
-  <version>0.5.3</version>
+  <version>0.5.4</version>
 </dependency>
 ```
 
