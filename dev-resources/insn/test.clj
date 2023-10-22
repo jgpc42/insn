@@ -17,7 +17,7 @@
                "\\.")
        last Long/valueOf))
 
-(def max-version 18)
+(def max-version 21)
 
 (when (>= jvm 9)
   (require 'insn.v9-bytecode-test))
