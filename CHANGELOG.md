@@ -1,3 +1,7 @@
+## 0.5.5-SNAPSHOT (20XX-XX-XX)
+
+* Upgrade to [ASM 9.6][asm]
+
 ## 0.5.4 (2022-04-14)
 
 * BUGFIX: default `iface` value for method instructions should be false *except* for `invokeinterface` ([#12][issue12])

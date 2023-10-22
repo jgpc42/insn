@@ -29,7 +29,7 @@
 </dependency>
 ```
 
-JDK versions 8 to 18 and Clojure versions 1.7 to 1.11 are currently [tested against][ci].
+JDK versions 8 to 21 and Clojure versions 1.7 to 1.11 are currently [tested against][ci].
 </details>
 
 ### What is it?
@@ -77,7 +77,7 @@ Now to write the bytecode.
 (def result (insn/visit class-data))
 ```
 
-The `result` is a map containing the generated classes' packaged-prefixed `:name` and `:bytes`, the latter being a byte array. This information is all you need to give to a ClassLoader to define your class.
+The `result` is a map containing the generated class's packaged-prefixed `:name` and `:bytes`, the latter being a byte array. This information is all you need to give to a ClassLoader to define your class.
 
 For convenience, we can use `insn.core/define` to define the class for us.
 

@@ -41,7 +41,7 @@
 
 (defn visit
   "Generate the class bytecode from the provided type map. Returns a map
-  of the classes' :name and :bytes. Options:
+  of the class's :name and :bytes. Options:
 
     :name         of the class. Optional, but see below.
 
@@ -139,7 +139,7 @@
   a map of {parameter-index annotations}.
 
   If the class name is not package prefixed, the current namespace is
-  used as the resulting classes' package. If a name is not given, a
+  used as the resulting class's package. If a name is not given, a
   generated (gensym) class name is used, qualified by the current
   namespace.
 
@@ -312,7 +312,7 @@
      (.newInstance ^Constructor ctor (object-array args)))))
 
 (defn write
-  "Takes a map specifying a classes' :name and :bytes. Writes the class
+  "Takes a map specifying a class's :name and :bytes. Writes the class
   bytes to a .class file. The file's directory is taken from its
   package, its filename from its name, rooted at `root`.
 

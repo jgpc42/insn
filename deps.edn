@@ -1,2 +1,2 @@
 {:deps
- {org.ow2.asm/asm {:mvn/version "9.3"}}}
+ {org.ow2.asm/asm {:mvn/version "9.6"}}}

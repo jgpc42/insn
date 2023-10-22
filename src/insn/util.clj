@@ -195,7 +195,10 @@
    16 (get-opcode "V16")
    17 (get-opcode "V17")
    18 (get-opcode "V18")
-   19 (get-opcode "V19")})
+   19 (get-opcode "V19")
+   20 (get-opcode "V20")
+   21 (get-opcode "V21")
+   22 (get-opcode "V22")})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
