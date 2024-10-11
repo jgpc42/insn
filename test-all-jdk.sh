@@ -12,16 +12,11 @@ deps=$insn.deps
 
 jdks=(
     openjdk:8
-    openjdk:9
-    openjdk:10
     openjdk:11
-    openjdk:12
-    openjdk:13
-    openjdk:14
-    openjdk:15
-    openjdk:16
     openjdk:17
-    openjdk:18
+    openjdk:21
+    openjdk:22
+    openjdk:23
 )
 
 mkdir -p target

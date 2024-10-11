@@ -12,3 +12,4 @@ RUN ./lein with-profile +1.7 deps
 RUN ./lein with-profile +1.9 deps
 RUN ./lein with-profile +1.10 deps
 RUN ./lein with-profile +1.11 deps
+RUN ./lein with-profile +1.12 deps

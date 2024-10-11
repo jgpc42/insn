@@ -1,6 +1,7 @@
 ## 0.5.5-SNAPSHOT (20XX-XX-XX)
 
-* Upgrade to [ASM 9.6][asm]
+* Upgrade to [ASM 9.7.1][asm]
+* Explicit support for Clojure 1.12
 
 ## 0.5.4 (2022-04-14)
 
