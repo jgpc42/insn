@@ -1,8 +1,6 @@
 .\#*
-.dir-locals.el
 .lein-*
 .nrepl-*
+pom.xml
 pom.xml.asc
-test-all-asm.sh
-wiki/
 target/

@@ -29,7 +29,7 @@
 </dependency>
 ```
 
-LTS JDK versions 8, 11, 17 and 21 and Clojure versions 1.7 to 1.12 are currently [tested against][ci].
+LTS JDK versions 8, 11, 17 and 21 along with Clojure versions 1.7 to 1.12 are currently [tested against][ci].
 </details>
 
 ### What is it?
@@ -107,12 +107,6 @@ lein test
 ```
 
 Or, `lein test-all` for all supported Clojure versions.
-
-The tests can also be run against all supported Java versions (via [`docker`][docker]) with:
-
-``` bash
-./test-all-jdk.sh
-```
 
 ### Similar libraries
 
