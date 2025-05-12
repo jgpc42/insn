@@ -72,6 +72,10 @@
   (type-sig [x]
     "Return an internal type signature string."))
 
+(defprotocol LocalIndex
+  (local-index [x]
+    "Return the numeric index of a local variable value."))
+
 ;;;
 
 (def ^{:doc "The internal class name of the class being generated."
@@ -427,3 +431,7 @@
   (type-sig [_])
   String
   (type-sig [s] s))
+
+(extend-protocol LocalIndex
+  Number
+  (local-index [n] (long n)))

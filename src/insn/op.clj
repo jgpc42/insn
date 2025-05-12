@@ -102,7 +102,7 @@
 (defops [iinc]
   "Increment int local variable index `idx` by amount `n`."
   [v idx n]
-  (.visitIincInsn v idx n))
+  (.visitIincInsn v (util/local-index idx) n))
 
 (defops [bipush sipush]
   "Push int value `n`."
@@ -265,12 +265,12 @@
          lload lstore]
   "Push or write local variable at index `idx`."
   [v idx]
-  (.visitVarInsn v &op idx))
+  (.visitVarInsn v &op (util/local-index idx)))
 
 (defops [ret]
   "Continue from address given by local variable at index `idx`."
   [v idx]
-  (.visitVarInsn v &op idx))
+  (.visitVarInsn v &op (util/local-index idx)))
 
 (defops
   [nop
@@ -325,7 +325,8 @@
   error will be thrown."
   [^MethodVisitor v vname vtype start end idx]
   (.visitLocalVariable v (name vname) (util/type-desc vtype) nil
-                       (util/label-from start) (util/label-from end) idx))
+                       (util/label-from start) (util/label-from end)
+                       (util/local-index idx)))
 
 (defn lookupswitch*
   "Jump to a corresponding label given in `tlabels` by an int table
@@ -379,7 +380,7 @@
 (def-op-method pop1)
 (def-op-method trycatch)
 
-(defn ^:internal op-seq
+(defn op-seq
   "Return a flattened sequence of ops."
   [xs]
   (let [op? (comp keyword? first)

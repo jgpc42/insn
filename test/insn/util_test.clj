@@ -70,3 +70,12 @@
   (testing "special keywords"
     (binding [util/*this* "Foo"]
       (is (= "LFoo;" (util/type-desc :this))))))
+
+(deftest test-local-index
+  (extend Runtime util/LocalIndex {:local-index (constantly 100)})
+  (try
+    (is (= 17 (util/local-index 17.42)))
+    (is (= 100 (util/local-index (Runtime/getRuntime))))
+    (finally
+      (-reset-methods (alter-var-root (:var util/LocalIndex)
+                                      update :impls dissoc Runtime)))))
