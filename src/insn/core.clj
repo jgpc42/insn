@@ -138,10 +138,8 @@
   Additionally, methods may be given :parameter-annotations provided as
   a map of {parameter-index annotations}.
 
-  If the class name is not package prefixed, the current namespace is
-  used as the resulting class's package. If a name is not given, a
-  generated (gensym) class name is used, qualified by the current
-  namespace.
+  If a class name is not given, a generated (gensym) class name is used,
+  qualified by the current namespace.
 
   If the type does not define at least one constructor, and is not an
   abstract type, a default, zero-argument constructor with default
@@ -154,10 +152,9 @@
   Annotation values are processed the same as in clojure.
   See: https://clojure.org/reference/datatypes#_java_annotation_support"
   [t]
-  (let [cls (name (or (:name t) (gensym "insn_type")))
-        cls (if (.contains cls ".")
-              cls
-              (str (munge (ns-name *ns*)) "." cls))
+  (let [cls (some-> (:name t) name)
+        cls (or cls (str (namespace-munge *ns*) "."
+                         (gensym "insn_type")))
         flags (set (seq (:flags t *class-flags*)))
         concrete? (not (or (:interface flags)
                            (:abstract flags)))
