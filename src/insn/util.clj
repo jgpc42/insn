@@ -271,6 +271,14 @@
            (type-desc ret)))
     "()V"))
 
+(defn constructor-desc
+  "Return internal constructor descriptor string."
+  [xs]
+  (let [desc (method-desc xs)]
+    (if (.endsWith ^String desc "V")
+      desc
+      (method-desc (concat xs [:void])))))
+
 (defn method-name
   "Return a method name string."
   [x]

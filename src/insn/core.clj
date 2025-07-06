@@ -221,10 +221,7 @@
                clinit?
                "()V"
                init?
-               (let [desc (util/method-desc (:desc m))]
-                 (if (.endsWith ^String desc "V")
-                   desc
-                   (util/method-desc (concat (:desc m) [:void]))))
+               (util/constructor-desc (:desc m))
                :else
                (if (:desc m)
                  (util/method-desc (:desc m))

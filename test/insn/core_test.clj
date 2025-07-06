@@ -56,7 +56,7 @@
                                [:return]]}
                        {:name :init
                         :emit [[:aload 0]
-                               [:invokespecial :super :init [:void]]
+                               [:invokespecial :super :init []]
                                [:aload 0]
                                [:ldc 42]
                                [:putfield :this "x" :int]
