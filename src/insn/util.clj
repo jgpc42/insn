@@ -261,23 +261,25 @@
   ([] (repeatedly label))
   ([n] (take n (labels))))
 
+(defn- method-desc* [args ret]
+  (let [args (map type-desc args)]
+    (str "(" (apply str args) ")"
+         (type-desc ret))))
+
 (defn method-desc
   "Return internal method descriptor string."
   [xs]
   (if (seq xs)
-    (let [[args ret] [(butlast xs) (last xs)]
-          args (map type-desc args)]
-      (str "(" (apply str args) ")"
-           (type-desc ret)))
+    (method-desc* (butlast xs) (last xs))
     "()V"))
 
 (defn constructor-desc
   "Return internal constructor descriptor string."
   [xs]
-  (let [desc (method-desc xs)]
-    (if (.endsWith ^String desc "V")
-      desc
-      (method-desc (concat xs [:void])))))
+  (let [t (last xs)]
+    (if (and t (= "V" (type-desc t)))
+      (method-desc xs)
+      (method-desc* xs :void))))
 
 (defn method-name
   "Return a method name string."
