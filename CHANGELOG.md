@@ -2,6 +2,9 @@
 
 * Upgrade to [ASM 9.7.1][asm]
 * Explicit support for Clojure 1.12
+* Allow creating class names with no package (remove auto ns prefixing)
+* Add support for custom index objects via the `LocalIndex` protocol
+* Generate default constructor for :abstract classes too if one not provided
 
 ## 0.5.4 (2022-04-14)
 

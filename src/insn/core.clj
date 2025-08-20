@@ -156,8 +156,6 @@
         cls (or cls (str (namespace-munge *ns*) "."
                          (gensym "insn_type")))
         flags (set (seq (:flags t *class-flags*)))
-        concrete? (not (or (:interface flags)
-                           (:abstract flags)))
         flags (if (:interface flags) (conj flags :abstract) flags)
         this (util/class-desc cls)
         super (util/class-desc (:super t Object))
@@ -178,7 +176,7 @@
              (.visitSource (:source t) (:debug t)))
 
         ctor? #(= "<init>" (util/method-name (:name %)))
-        t (if (or (not concrete?) (some ctor? (:methods t)))
+        t (if (or (:interface flags) (some ctor? (:methods t)))
             t
             (update t :methods conj
                     {:name :init
