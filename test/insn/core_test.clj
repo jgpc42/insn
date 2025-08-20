@@ -382,3 +382,26 @@
             ^ParameterizedType (.getGenericType) .getActualTypeArguments first (= String)))
     (is (= "T" (-> klass (.getMethod "bar" (into-array Class [List]))
                    ^ParameterizedType (.getGenericReturnType) .getActualTypeArguments first str)))))
+
+(deftest test-interface-no-ctor
+  (is (= 0 (-> (core/define {:flags #{:interface}})
+               (.getDeclaredConstructors)
+               (count)))))
+
+(deftest test-keyword-aliases
+  (let [c (core/define
+            {:name 'T :flags #{:public :abstract}
+             :methods [{:name 'm1 :params [String] :type :void
+                        :param-annotations {0 {Deprecated true}}
+                        :bytecode [[:return]]}
+                       {:name 'm2 :parameter-types [String] :return-type :void
+                        :bytecode [[:return]]}]})]
+    (is (= "T" (.getName c)))
+    (is (= 1 (count (.getDeclaredConstructors c))))
+    (is (= [{:name "m1" :params [String] :type Void/TYPE :anns [Deprecated]}
+            {:name "m2" :params [String] :type Void/TYPE :anns []}]
+           (for [m (sort-by #(.getName %) (.getDeclaredMethods c))]
+             {:name (.getName m)
+              :params (vec (.getParameterTypes m))
+              :type (.getReturnType m)
+              :anns (map #(.annotationType %) (aget (.getParameterAnnotations m) 0))})))))

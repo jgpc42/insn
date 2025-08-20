@@ -125,25 +125,34 @@
             constructors. For constructors, the method return type is
             forced to void if not explicitly specified as such.
 
+            Additionally, instead of :desc, the separate keys :params
+            and :type can be used for the parameter types and return
+            type, respectively. If used, :type is required and takes
+            priority over :desc. (The more verbose :parameter-types and
+            :return-type exists as aliases.)
+
     :emit   either a fn taking a MethodVisitor or a sequence of
             instructions to emit for the method (see `insn.op`).
-            Optional if method is abstract.
+            Optional if method is abstract. (Alias: :bytecode.)
 
   Some example maps, :emit has been omitted for brevity:
 
     {:name :add_ints, :desc [:int :int :int]}
     {:flags #{:private}, :name :init, :desc [String :boolean :void]}
+    {:flags #{:private}, :name :init, :params [String :boolean] :type :void}
     {:name :clinit}
 
   Additionally, methods may be given :parameter-annotations provided as
-  a map of {parameter-index annotations}.
+  a map of {parameter-index annotations}. (Alias: :param-annotations.)
 
   If a class name is not given, a generated (gensym) class name is used,
   qualified by the current namespace.
 
   If the type does not define at least one constructor, and is not an
-  abstract type, a default, zero-argument constructor with default
+  interface type, a default, zero-argument constructor with default
   access will be written that simply invokes the superclass constructor.
+  Note that if the super class does not support this constructor an
+  error will be raised.
 
   All annotations are provided as a map or sequence of tuples. Each key
   is the Annotation name and each value is a map of elements. A non-map
@@ -215,24 +224,24 @@
                 clinit? [:static]
                 init? (:flags m *init-flags*)
                 :else (:flags m *method-flags*))
+        desc (if-let [ret-type (or (:type m) (:return-type m))]
+               (let [params (or (:params m) (:parameter-types m))]
+                 (conj (vec params) ret-type))
+               (:desc m))
         desc (cond
-               clinit?
-               "()V"
-               init?
-               (util/constructor-desc (:desc m))
-               :else
-               (if (:desc m)
-                 (util/method-desc (:desc m))
-                 "()V"))
+               clinit? "()V"
+               init? (util/constructor-desc desc)
+               :else (if desc (util/method-desc desc) "()V"))
         mv (.visitMethod cv (util/flags flags) mname desc (util/type-sig (:signature m)) nil)
-        emit (if (fn? (:emit m))
-               (:emit m)
-               (op/compile (:emit m)))]
+        emit (or (:emit m) (:bytecode m))
+        emit (if (fn? emit)
+               emit
+               (op/compile emit))]
     (.visitCode mv)
     (binding [util/*labels* (atom {})]
       (emit mv))
     (ann/visit mv (:annotations m))
-    (doseq [[i anns] (:parameter-annotations m)]
+    (doseq [[i anns] (or (:parameter-annotations m) (:param-annotations m))]
       (ann/visit mv i anns))
     (doto mv
       (.visitMaxs -1 -1)
