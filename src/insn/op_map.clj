@@ -29,8 +29,8 @@
           [ks (map m ks)])))))
 
 (def ^:private op-handlers
-  "Each added quad provides a op keyword seq, an emit fn, and a fn that
-  should convert the map op to the vector equivalent. Nothing fancy like
+  "Each added tuple should be an op keyword seq, an emit fn, and a fn
+  that converts the map op to the vector equivalent. Nothing fancy like
   multimethods/protocols for performance here."
   (let [add #(vary-meta (merge %1 (zipmap %2 (repeat %3)))
                         merge (zipmap %2 (repeat %4)))]

@@ -416,13 +416,7 @@
                      {:name :clinit
                       :emit [{:op :return}]}
                      {:name 'm :type Object
-                      :emit [{:op :invokestatic
-                              :class java.io.InputStream
-                              :name 'nullInputStream
-                              :type java.io.InputStream}
-                             {:op :pop}
-                             ,
-                             {:op :ldc, :value 0}
+                      :emit [{:op :ldc, :value 0}
                              {:op :istore, :index 1}
                              ,
                              {:op :iinc, :index 1, :value 1}
