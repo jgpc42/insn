@@ -67,7 +67,7 @@
                            ~@args]
                           (let [~'&op ~field]
                             ~@body)))))
-                (alter-meta! #'~fname assoc :arglists '~alists)
+                (alter-meta! #'~fname assoc :arglists '~alists ::op true)
                 (def-op-method ~fname)))))))
 
 ;;;
@@ -236,9 +236,7 @@
   bootstrap method."
   ([v mname desc boot] (&fn v mname desc boot []))
   ([v mname desc boot args]
-   (let [boot (if (sequential? boot)
-                (apply util/handle boot)
-                boot)]
+   (let [boot (if (util/handle? boot) boot (apply util/handle boot))]
      (.visitInvokeDynamicInsn v (util/method-name mname) (util/method-desc desc)
                               boot (object-array args)))))
 
@@ -384,20 +382,19 @@
 (def-op-method pop1)
 (def-op-method trycatch)
 
+(def op?
+  "Returns true if the given value is a valid op vector."
+  (comp keyword? first))
+
 (defn op-seq
   "Return a flattened sequence of ops."
-  [xs]
-  (let [op? (comp keyword? first)
-        go (fn go [[x & xs]]
-             (lazy-seq
-              (cond
-                (op? x)
-                (cons x (go xs))
-                (seq x)
-                (concat (go x) (go xs))
-                (seq xs)
-                (go xs))))]
-    (go xs)))
+  ([xs] (op-seq op? xs))
+  ([op? [x & xs]]
+   (lazy-seq
+    (cond
+      (op? x) (cons x (op-seq xs))
+      (seq x) (concat (op-seq x) (op-seq xs))
+      (seq xs) (op-seq xs)))))
 
 (defn compile
   "Compile a sequence of op seqs to a fn that accepts an ASM
@@ -409,3 +406,24 @@
     (fn [v]
       (doseq [op ops]
         (apply (::fn op) v (::args op))))))
+
+(def ^:private keyword-opcode*
+  (into {} (for [var (vals (ns-publics *ns*))
+                 :let [m (meta var)]
+                 :when (::op m)]
+             (let [sym (:name m)
+                   field (-> sym name .toUpperCase (.replace \- \_))]
+               [(keyword sym)
+                (.getInt (.getField Opcodes field) nil)]))))
+
+(defn keyword-opcode
+  "Return the ASM opcode number as a long for the given op keyword. If
+  the keyword is invalid an error is raised."
+  ^long [k]
+  (let [v (util/check-valid "op keyword" keyword-opcode* k)]
+    (.longValue ^Integer v)))
+
+(defn emit-seq
+  "Emit the op sequence to the given ASM MethodVisitor. See `compile`."
+  [v ops]
+  ((compile ops) v))

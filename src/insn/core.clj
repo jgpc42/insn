@@ -69,6 +69,13 @@
 
     :debug        string of arbitrary debug information - optional.
 
+    :seq-emit-fn  fn to call with each bytecode seq. This is an advanced
+                  option and, if present, will be passed both the ASM
+                  MethodVisitor and the raw (possibly nested) :emit op
+                  seq for each method. Can be used to support new op
+                  data types. For example, the `insn.op-map/emit-seq` fn
+                  can be used to enable map-style op sequences.
+
   Each field and method can also be given :annotations and a :signature
   as per above.
 
@@ -192,13 +199,14 @@
                     {:name :init
                      :emit [[:aload 0]
                             [:invokespecial :super :init [:void]]
-                            [:return]]}))]
+                            [:return]]}))
+        seq-emit (:seq-emit-fn t op/emit-seq)]
     (binding [util/*this* this
               util/*super* super]
       (doseq [f (:fields t)]
         (visit-field cv f))
       (doseq [m (:methods t)]
-        (visit-method cv m))
+        (visit-method cv m seq-emit))
       (doto cv
         (ann/visit (:annotations t))
         .visitEnd))
@@ -217,7 +225,7 @@
     (ann/visit fv (:annotations f))
     (.visitEnd fv)))
 
-(defn- visit-method [^ClassVisitor cv m]
+(defn- visit-method [^ClassVisitor cv m seq-emit]
   (let [mname (util/method-name (:name m))
         clinit? (= mname "<clinit>")
         init? (= mname "<init>")
@@ -245,7 +253,9 @@
              (.visitCode))
         emit (or (:emit m) (:bytecode m))]
     (binding [util/*labels* (atom {})]
-      (emit mv))
+      (if (fn? emit)
+        (emit mv)
+        (seq-emit mv emit)))
     (ann/visit mv (:annotations m))
     (doseq [[i anns] (or (:parameter-annotations m) (:param-annotations m))]
       (ann/visit mv i anns))

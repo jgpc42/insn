@@ -204,7 +204,8 @@
    21 (get-opcode "V21")
    22 (get-opcode "V22")
    23 (get-opcode "V23")
-   24 (get-opcode "V24")})
+   24 (get-opcode "V24")
+   25 (get-opcode "V25")})
 
 (defmacro ^:no-doc check-valid
   "Get the value at `k` in map `m` or throw exception."
@@ -324,13 +325,28 @@
     (type-desc x)
     (class-desc x)))
 
+(defn field-handle
+  "Return an ASM Handle object denoting a field."
+  [tag owner fname ftype]
+  (Handle. (check-valid "handle" handle-keyword? tag)
+           (class-desc owner) (name fname) (type-desc ftype)))
+
+(defn method-handle
+  "Return an ASM Handle object denoting a method."
+  [tag owner mname params ret]
+  (Handle. (check-valid "handle" handle-keyword? tag)
+           (class-desc owner) (method-name mname) (method-desc* params ret)))
+
+(defn handle? [x]
+  (instance? Handle x))
+
 (defn handle
   "Return an ASM Handle object for a field or method."
   [tag owner mname desc-or-type]
-  (let [field? (#{:getfield :getstatic :putfield :putstatic} tag)
-        desc (if field? (type-desc desc-or-type) (method-desc desc-or-type))]
-    (Handle. (check-valid "handle" handle-keyword? tag) (class-desc owner)
-             (method-name mname) desc)))
+  (let [field? (#{:getfield :getstatic :putfield :putstatic} tag)]
+    (if field?
+      (field-handle tag owner mname desc-or-type)
+      (method-handle tag owner mname (butlast desc-or-type) (last desc-or-type)))))
 
 (defn sort
   "Return the ASM sort number of the given type."
@@ -344,9 +360,7 @@
     ([cname ftype boot]
      (constant-dynamic cname ftype boot []))
     ([cname ftype boot args]
-     (let [boot (if (sequential? boot)
-                  (apply handle boot)
-                  boot)]
+     (let [boot (if (handle? boot) boot (apply handle boot))]
        (@fref (name cname) (type-desc ftype)
               boot (object-array args))))))
 

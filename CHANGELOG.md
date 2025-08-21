@@ -1,11 +1,12 @@
-## 0.5.5-SNAPSHOT (20XX-XX-XX)
+## 0.6.0-SNAPSHOT (20XX-XX-XX)
 
-* Upgrade to [ASM 9.7.1][asm]
+* Upgrade to [ASM 9.8][asm]
 * Explicit support for Clojure 1.12
 * Allow creating class names with no package (remove auto ns prefixing)
 * Add support for custom index objects via the `LocalIndex` protocol
 * Generate default constructor for :abstract classes too if one not provided
 * Support passing parameter and return types separately when defining methods
+* Experimental new map compilation facilitated by `:seq-emit-fn`.
 
 ## 0.5.4 (2022-04-14)
 

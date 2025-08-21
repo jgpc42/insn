@@ -1,6 +1,7 @@
 (ns insn.core-test
   (:require [insn.core :as core]
             [insn.op :as op]
+            [insn.op-map :as op-map]
             [clojure.test :refer :all])
   (:import [org.objectweb.asm ClassReader ClassVisitor MethodVisitor Opcodes]
            [java.lang.annotation Retention RetentionPolicy Target ElementType]
@@ -405,3 +406,40 @@
               :params (vec (.getParameterTypes m))
               :type (.getReturnType m)
               :anns (map #(.annotationType %) (aget (.getParameterAnnotations m) 0))})))))
+
+(deftest test-seq-emit-fn
+  (let [t {:seq-emit-fn op-map/emit-seq
+           :methods [{:name :init :params []
+                      :emit [{:op :aload :index 0}
+                             {:op :invokespecial :class :super :name :init}
+                             {:op :return}]}
+                     {:name :clinit
+                      :emit [{:op :return}]}
+                     {:name 'm :type Object
+                      :emit [{:op :invokestatic
+                              :class java.io.InputStream
+                              :name 'nullInputStream
+                              :type java.io.InputStream}
+                             {:op :pop}
+                             ,
+                             {:op :ldc, :value 0}
+                             {:op :istore, :index 1}
+                             ,
+                             {:op :iinc, :index 1, :value 1}
+                             ,
+                             {:op :iload :index 1}
+                             {:op :newarray, :type :int}
+                             {:op :ifnull :label :L}
+                             ,
+                             {:op :goto, :label :L}
+                             {:op :mark, :label :L}
+                             ,
+                             {:op :ldc2, :value 42}
+                             {:op :invokestatic
+                              :class Long
+                              :name 'valueOf
+                              :params [:long]
+                              :type Long}
+                             ,
+                             {:op :areturn}]}]}]
+    (is (= 42 (.m (core/new-instance t))))))
