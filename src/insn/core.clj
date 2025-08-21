@@ -125,11 +125,12 @@
             constructors. For constructors, the method return type is
             forced to void if not explicitly specified as such.
 
-            Additionally, instead of :desc, the separate keys :params
-            and :type can be used for the parameter types and return
-            type, respectively. If used, :type is required and takes
-            priority over :desc. (The more verbose :parameter-types and
-            :return-type exists as aliases.)
+            Alternatively, the separate keys :params and :type can be
+            used for the parameter types and return type, respectively.
+            For normal methods, :type is required. For :init, the
+            (possibly empty) :params key is required and :type is
+            ignored. If either is used, they take priority over :desc.
+            (Aliases: :parameter-types, :return-type.)
 
     :emit   either a fn taking a MethodVisitor or a sequence of
             instructions to emit for the method (see `insn.op`).
@@ -224,20 +225,25 @@
                 clinit? [:static]
                 init? (:flags m *init-flags*)
                 :else (:flags m *method-flags*))
-        desc (if-let [ret-type (or (:type m) (:return-type m))]
-               (let [params (or (:params m) (:parameter-types m))]
-                 (conj (vec params) ret-type))
-               (:desc m))
         desc (cond
-               clinit? "()V"
-               init? (util/constructor-desc desc)
-               :else (if desc (util/method-desc desc) "()V"))
-        mv (.visitMethod cv (util/flags flags) mname desc (util/type-sig (:signature m)) nil)
-        emit (or (:emit m) (:bytecode m))
-        emit (if (fn? emit)
-               emit
-               (op/compile emit))]
-    (.visitCode mv)
+               clinit?
+               "()V"
+
+               init?
+               (if (contains? m :params)
+                 (util/method-desc* (:params m) :void)
+                 (util/constructor-desc (:desc m)))
+
+               :else
+               (if-let [ret (or (:type m) (:return-type m))]
+                 (util/method-desc* (or (:params m) (:parameter-types m)) ret)
+                 (if-let [desc (:desc m)]
+                   (util/method-desc desc)
+                   "()V")))
+        mv (doto (.visitMethod cv (util/flags flags) mname desc
+                               (util/type-sig (:signature m)) nil)
+             (.visitCode))
+        emit (or (:emit m) (:bytecode m))]
     (binding [util/*labels* (atom {})]
       (emit mv))
     (ann/visit mv (:annotations m))

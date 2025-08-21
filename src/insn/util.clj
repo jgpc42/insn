@@ -261,10 +261,17 @@
   ([] (repeatedly label))
   ([n] (take n (labels))))
 
-(defn- method-desc* [args ret]
-  (let [args (map type-desc args)]
-    (str "(" (apply str args) ")"
-         (type-desc ret))))
+(defn make-desc [params ret]
+  (conj (vec params) ret))
+
+(defn method-desc* [args ret]
+  (let [b (StringBuilder. 32)]
+    (.append b "(")
+    (doseq [t args]
+      (.append b (type-desc t)))
+    (.append b ")")
+    (.append b (type-desc ret))
+    (.toString b)))
 
 (defn method-desc
   "Return internal method descriptor string."
