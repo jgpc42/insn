@@ -248,7 +248,7 @@
      {:op :anewarray :type Long}
      {:op :multianewarray :type Object :dimensions 3}
 
-    Field getters/setters. The :class key here in the owner class; e.g.,
+    Field getters/setters. The :class key here is the owner class; e.g.,
 
       {:op :getfield :class :this :name 'field :type String}
 
@@ -290,7 +290,7 @@
       {:op :ldc2 :value 42}      ;; a long
       {:op :ldc2 :value 17.1}    ;; a double
 
-    Additionally, the :line-number and :local-variable ops; e.g.,
+    The :line-number and :local-variable ops; e.g.,
 
       {:op :line-number :value 42 :label :LINE}
       {:op :local-variable
