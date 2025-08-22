@@ -28,214 +28,11 @@
         (let [ks (sort ks)]
           [ks (map m ks)])))))
 
-(def ^:private op-handlers
-  "Each added tuple should be an op keyword seq, an emit fn, and a fn
-  that converts the map op to the vector equivalent. Nothing fancy like
-  multimethods/protocols for performance here."
-  (let [add #(vary-meta (merge %1 (zipmap %2 (repeat %3)))
-                        merge (zipmap %2 (repeat %4)))]
-    (-> {}
-        (add [:aload :astore
-              :dload :dstore
-              :fload :fstore
-              :iload :istore
-              :lload :lstore
-              :ret]
-             (fn [^MethodVisitor v op]
-               (.visitVarInsn v (op-opcode op) (util/local-index (:index op))))
-             (juxt :op :index))
-
-        (add [:anewarray :checkcast :instanceof :new]
-             (fn [^MethodVisitor v op]
-               (.visitTypeInsn v
-                               (op-opcode op)
-                               (util/special-desc (:type op))))
-             (juxt :op :type))
-
-        (add [:getfield :getstatic :putfield :putstatic]
-             (fn [^MethodVisitor v op]
-               (.visitFieldInsn v
-                                (op-opcode op)
-                                (util/class-desc (:class op))
-                                (name (:name op))
-                                (util/type-desc (:type op))))
-             (juxt :op :class :name :type))
-
-        (add [:goto :jsr
-              :ifnull :ifnonnull
-              :ifeq :ifne
-              :ifge :ifgt
-              :ifle :iflt
-              :if-acmpeq :if-acmpne
-              :if-icmpeq :if-icmpne
-              :if-icmpge :if-icmpgt
-              :if-icmple :if-icmplt]
-             (fn [^MethodVisitor v op]
-               (.visitJumpInsn v (op-opcode op) (util/label-from (:label op))))
-             (juxt :op :label))
-
-        (add [:iinc]
-             (fn [^MethodVisitor v op]
-               (.visitIincInsn v (util/local-index (:index op)) (:value op)))
-             (juxt :op :index :value))
-
-        (add [:invokedynamic]
-             (fn [^MethodVisitor v {b :bootstrap :as op}]
-               (.visitInvokeDynamicInsn
-                v
-                (util/method-name (:name op))
-                (util/method-desc* (param-types op) (return-type op))
-                (if (util/handle? b)
-                  b
-                  (util/method-handle (:op b) (:class b) (:name b)
-                                      (param-types b) (return-type b)))
-                (object-array (:args op))))
-             (fn [{args :args b :bootstrap :as op}]
-               (cond-> [(:op op) (:name op)
-                        (util/make-desc (param-types op) (return-type op))
-                        (if (util/handle? b)
-                          b
-                          [(:op b) (:class b) (:name b)
-                           (util/make-desc (param-types op) (return-type op))])]
-                 args
-                 (conj args))))
-
-        (add [:invokeinterface :invokespecial :invokestatic :invokevirtual]
-             (fn [^MethodVisitor v op]
-               (let [code (op-opcode op)
-                     ret (if (== Opcodes/INVOKESPECIAL code)
-                           :void
-                           (return-type op))
-                     iface? (boolean (:interface op (== Opcodes/INVOKEINTERFACE code)))]
-                 (.visitMethodInsn v code
-                                   (util/class-desc (:class op))
-                                   (util/method-name (:name op))
-                                   (util/method-desc* (param-types op) ret)
-                                   iface?)))
-             (fn [{iface :interface :as op}]
-               (cond-> [(:op op) (:class op) (:name op)
-                        (util/make-desc (param-types op) (return-type op))]
-                 iface
-                 (conj iface))))
-
-        (add [:ldc]
-             (fn [v op] (op/ldc v (:value op)))
-             (juxt :op :value))
-
-        (add [:ldc2]
-             (fn [v op] (op/ldc2 v (:value op)))
-             (juxt :op :value))
-
-        (add [:line-number]
-             (fn [^MethodVisitor v op]
-               (.visitLineNumber v (:value op) (util/label-from (:label op))))
-             (juxt :op :value :label))
-
-        (add [:local-variable]
-             (fn [^MethodVisitor v op]
-               (.visitLocalVariable v
-                                    (name (:name op))
-                                    (util/type-desc (:type op))
-                                    nil
-                                    (util/label-from (:start-label op))
-                                    (util/label-from (:end-label op))
-                                    (util/local-index (:index op))))
-             (juxt :op :name :type :start-label :end-label :index))
-
-        (add [:lookupswitch]
-             (fn [^MethodVisitor v op]
-               (let [[keys labels] (lookupswitch-pair op)]
-                 (.visitLookupSwitchInsn v
-                                         (util/label-from (:default-label op))
-                                         (int-array keys)
-                                         (util/label-array labels))))
-             (fn [op]
-               (let [[keys labels] (lookupswitch-pair op)]
-                 [(:op op) (:default-label op) keys labels])))
-
-        (add [:mark]
-             (fn [^MethodVisitor v op]
-               (.visitLabel v (util/label-from (:label op))))
-             (juxt :op :label))
-
-        (add [:multianewarray]
-             (fn [^MethodVisitor v op]
-               (.visitMultiANewArrayInsn v
-                                         (util/type-desc (:type op))
-                                         (:dimensions op)))
-             (juxt :op :type :dimensions))
-
-        (add [:newarray]
-             (fn [^MethodVisitor v op]
-               (.visitIntInsn v
-                              Opcodes/NEWARRAY
-                              (util/array-type (:type op))))
-             (juxt :op :type))
-
-        (add [:tableswitch]
-             (fn [^MethodVisitor v op]
-               (.visitTableSwitchInsn v (:min op) (:max op)
-                                      (util/label-from (:default-label op))
-                                      (util/label-array (:labels op))))
-             (juxt :op :min :max :default-label :labels))
-
-        (add [:trycatch]
-             (fn [^MethodVisitor v op]
-               (.visitTryCatchBlock v
-                                    (util/label-from (:start-label op))
-                                    (util/label-from (:end-label op))
-                                    (util/label-from (:handler-label op))
-                                    (when-let [t (:type op)]
-                                      (util/class-desc t))))
-             (juxt :op :start-label :end-label :handler-label :type))
-
-        (add [:nop
-              :iaload :laload :faload :daload
-              :aaload :baload :caload :saload
-              :iastore :lastore :fastore :dastore
-              :aastore :bastore :castore :sastore
-              :pop :pop2
-              :dup :dup-x1 :dup-x2
-              :dup2 :dup2-x1 :dup2-x2
-              :swap
-              :iadd :ladd :fadd :dadd
-              :isub :lsub :fsub :dsub
-              :imul :lmul :fmul :dmul
-              :idiv :ldiv :fdiv :ddiv
-              :irem :lrem :frem :drem
-              :ineg :lneg :fneg :dneg
-              :ishl :lshl
-              :ishr :lshr :iushr :lushr
-              :iand :land
-              :ior :lor
-              :ixor :lxor
-              :i2l :i2f :i2d
-              :l2i :l2f :l2d
-              :f2i :f2l :f2d
-              :d2i :d2l :d2f
-              :i2b :i2c :i2s
-              :lcmp :fcmpl :fcmpg :dcmpl :dcmpg
-              :ireturn :lreturn :freturn :dreturn :areturn :return
-              :arraylength
-              :athrow
-              :monitorenter :monitorexit]
-             (fn [^MethodVisitor v op]
-               (.visitInsn v (op-opcode op)))
-             (juxt :op)))))
-
-(def op?
-  "Returns true if the given value is a valid op map."
-  (comp keyword? :op))
-
-(def op-seq
-  "Return a flattened sequence of map ops."
-  (partial op/op-seq op?))
-
-(defn emit-op
+(defmulti emit-op
   "Emit the map-style `op` to the given ASM MethodVisitor.
 
   The supported op maps are as follows. For more documentation on each
-  :op key, please see the corresponding fn in the `insn.op` ns.
+  :op dispatch key, please see the corresponding fn in the `insn.op` ns.
 
     The loads/stores, along with :ret; e.g.,
 
@@ -320,12 +117,202 @@
       {:op :iadd}
       {:op :areturn}
       ..."
+  (fn [v op] (:op op))
+  :default ::default)
+
+(defmulti op-vec
+  "Convert a map-style op to the more compact vector representation."
+  :op, :default ::default)
+
+(defmacro ^:private def-op-methods [ops argv emit-body vec-body]
+  `(do ~@(for [op ops]
+           `(do (defmethod emit-op ~op
+                  ~(update argv 0 vary-meta assoc :tag `MethodVisitor)
+                  ~emit-body)
+                (defmethod op-vec ~op [~(second argv)]
+                  ~vec-body)))))
+
+(def-op-methods [:aload :astore
+                 :dload :dstore
+                 :fload :fstore
+                 :iload :istore
+                 :lload :lstore
+                 :ret]
   [v op]
-  (let [k (:op op)
-        f (op-handlers k)]
-    (if (nil? f)
-      (throw (ex-info (str "invalid map :op key: " k) op))
-      (f v op))))
+  , (.visitVarInsn v (op-opcode op) (util/local-index (:index op)))
+  , (mapv op [:op :index]))
+
+(def-op-methods [:anewarray :checkcast :instanceof :new]
+  [v op]
+  , (.visitTypeInsn v (op-opcode op) (util/special-desc (:type op)))
+  , (mapv op :op :type))
+
+(def-op-methods [:getfield :getstatic :putfield :putstatic]
+  [v op]
+  , (let [cdesc (util/class-desc (:class op))
+          tdesc (util/type-desc (:type op))]
+      (.visitFieldInsn v (op-opcode op) cdesc (name (:name op)) tdesc))
+  , (mapv op [:op :class :name :type]))
+
+(def-op-methods [:goto :jsr
+                 :ifnull :ifnonnull
+                 :ifeq :ifne
+                 :ifge :ifgt
+                 :ifle :iflt
+                 :if-acmpeq :if-acmpne
+                 :if-icmpeq :if-icmpne
+                 :if-icmpge :if-icmpgt
+                 :if-icmple :if-icmplt]
+  [v op]
+  , (.visitJumpInsn v (op-opcode op) (util/label-from (:label op)))
+  , (mapv op [:op :label]))
+
+(def-op-methods [:iinc]
+  [v op]
+  , (.visitIincInsn v (util/local-index (:index op)) (:value op))
+  , (mapv op [:op :index :value]))
+
+(def-op-methods [:invokedynamic]
+  [v {args :args b :bootstrap :as op}]
+  , (let [mname (util/method-name (:name op))
+          desc (util/method-desc* (param-types op) (return-type op))
+          handle (if (util/handle? b)
+                   b
+                   (util/method-handle (:op b) (:class b) (:name b)
+                                       (param-types b) (return-type b)))]
+      (.visitInvokeDynamicInsn v mname desc handle (object-array (:args op))))
+  , (cond-> [(:op op) (:name op)
+             (util/make-desc (param-types op) (return-type op))
+             (if (util/handle? b)
+               b
+               [(:op b) (:class b) (:name b)
+                (util/make-desc (param-types op) (return-type op))])]
+      args
+      (conj args)))
+
+(def-op-methods [:invokeinterface :invokespecial :invokestatic :invokevirtual]
+  [v {iface :interface :as op}]
+  , (let [code (op-opcode op)
+          cdesc (util/class-desc (:class op))
+          mname (util/method-name (:name op))
+          ret (if (== Opcodes/INVOKESPECIAL code)
+                :void
+                (return-type op))
+          mdesc (util/method-desc* (param-types op) ret)
+          iface? (boolean (or iface (== Opcodes/INVOKEINTERFACE code)))]
+      (.visitMethodInsn v code cdesc mname mdesc iface?))
+  , (cond-> [(:op op) (:class op) (:name op)
+             (util/make-desc (param-types op) (return-type op))]
+      iface
+      (conj iface)))
+
+(def-op-methods [:ldc]
+  [v op]
+  , (op/ldc v (:value op))
+  , (mapv op [:op :value]))
+
+(def-op-methods [:ldc2]
+  [v op]
+  , (op/ldc2 v (:value op))
+  , (mapv op [:op :value]))
+
+(def-op-methods [:line-number]
+  [v op]
+  , (.visitLineNumber v (:value op) (util/label-from (:label op)))
+  , (mapv op [:op :value :label]))
+
+(def-op-methods [:local-variable]
+  [v op]
+  , (let [tdesc (util/type-desc (:type op))
+          slabel (util/label-from (:start-label op))
+          elabel (util/label-from (:end-label op))
+          idx (util/local-index (:index op))]
+      (.visitLocalVariable v (name (:name op)) tdesc nil slabel elabel idx))
+  , (mapv op [:op :name :type :start-label :end-label :index]))
+
+(def-op-methods [:lookupswitch]
+  [v op]
+  , (let [[keys labels] (lookupswitch-pair op)]
+      (.visitLookupSwitchInsn v
+                              (util/label-from (:default-label op))
+                              (int-array keys)
+                              (util/label-array labels)))
+  , (let [[keys labels] (lookupswitch-pair op)]
+      [(:op op) (:default-label op) keys labels]))
+
+(def-op-methods [:mark]
+  [v op]
+  , (.visitLabel v (util/label-from (:label op)))
+  , (mapv op [:op :label]))
+
+(def-op-methods [:multianewarray]
+  [v op]
+  , (.visitMultiANewArrayInsn v (util/type-desc (:type op)) (:dimensions op))
+  , (mapv op [:op :type :dimensions]))
+
+(def-op-methods [:newarray]
+  [v op]
+  , (.visitIntInsn v Opcodes/NEWARRAY (util/array-type (:type op)))
+  , (mapv op [:op :type]))
+
+(def-op-methods [:tableswitch]
+  [v op]
+  , (let [dlabel (util/label-from (:default-label op))
+          labels (util/label-array (:labels op))]
+      (.visitTableSwitchInsn v (:min op) (:max op) dlabel labels))
+  , (mapv op [:op :min :max :default-label :labels]))
+
+(def-op-methods [:trycatch]
+  [v op]
+  , (let [slabel (util/label-from (:start-label op))
+          elabel (util/label-from (:end-label op))
+          hlabel (util/label-from (:handler-label op))
+          cdesc (when-let [t (:type op)]
+                             (util/class-desc t))]
+      (.visitTryCatchBlock v slabel elabel hlabel cdesc))
+  , (mapv op [:op :start-label :end-label :handler-label :type]))
+
+(def-op-methods [:nop
+                 :iaload :laload :faload :daload
+                 :aaload :baload :caload :saload
+                 :iastore :lastore :fastore :dastore
+                 :aastore :bastore :castore :sastore
+                 :pop :pop2
+                 :dup :dup-x1 :dup-x2
+                 :dup2 :dup2-x1 :dup2-x2
+                 :swap
+                 :iadd :ladd :fadd :dadd
+                 :isub :lsub :fsub :dsub
+                 :imul :lmul :fmul :dmul
+                 :idiv :ldiv :fdiv :ddiv
+                 :irem :lrem :frem :drem
+                 :ineg :lneg :fneg :dneg
+                 :ishl :lshl
+                 :ishr :lshr :iushr :lushr
+                 :iand :land
+                 :ior :lor
+                 :ixor :lxor
+                 :i2l :i2f :i2d
+                 :l2i :l2f :l2d
+                 :f2i :f2l :f2d
+                 :d2i :d2l :d2f
+                 :i2b :i2c :i2s
+                 :lcmp :fcmpl :fcmpg :dcmpl :dcmpg
+                 :ireturn :lreturn :freturn :dreturn :areturn :return
+                 :arraylength
+                 :athrow
+                 :monitorenter :monitorexit]
+  [v op]
+  , (.visitInsn v (op-opcode op))
+  [(:op op)])
+
+(def op?
+  "Returns true if the given value is a valid op map."
+  (comp keyword? :op))
+
+(def op-seq
+  "Return a flattened sequence of map ops."
+  (partial op/op-seq op?))
 
 (defn emit-seq
   "Emit the map-style op sequence to the given ASM MethodVisitor.
@@ -343,12 +330,3 @@
       (seq x) (do (emit-seq v x)
                   (recur xs))
       (seq xs) (recur xs))))
-
-(defn op-vec
-  "Convert a map-style op to the more compact vector representation."
-  [op]
-  (let [k (:op op)
-        f ((meta op-handlers) k)]
-    (if (nil? f)
-      (throw (ex-info (str "invalid map :op key: " k) op))
-      (f op))))
