@@ -5,7 +5,7 @@
 (deftest test-compile
   (is (thrown-with-msg?
        Exception
-       #"invalid arity for op :invokedynamic: expected 3 or 4, got 0"
+       #"invalid arity for op :invokedynamic: expected 3 or 4 or 5, got 0"
        (op/compile [[:invokedynamic]]))))
 
 (deftest test-op-seq

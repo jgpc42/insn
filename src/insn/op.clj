@@ -220,7 +220,12 @@
                        mname (if (= Opcodes/INVOKESPECIAL &op)
                                (util/constructor-desc desc)
                                (util/method-desc desc))
-                       (boolean iface)))))
+                       (boolean iface))))
+  ([v cls mname params ret-type iface]
+   (let [cdesc (util/class-desc cls)
+         mname (util/method-name mname)
+         mdesc (util/method-desc* params ret-type)]
+     (.visitMethodInsn v &op cdesc mname mdesc (boolean iface)))))
 
 (defops [invokedynamic]
   "Call bootstrap method `boot` to return callsite for method `mname`
@@ -238,7 +243,11 @@
   ([v mname desc boot args]
    (let [boot (if (util/handle? boot) boot (apply util/handle boot))]
      (.visitInvokeDynamicInsn v (util/method-name mname) (util/method-desc desc)
-                              boot (object-array args)))))
+                              boot (object-array args))))
+  ([v mname params ret-type handle args]
+   (let [mname (util/method-name mname)
+         desc (util/method-desc* params ret-type)]
+     (.visitInvokeDynamicInsn v mname desc handle (object-array args)))))
 
 (defops [multianewarray]
   "Make a new array of type `atype` with `dims` dimensions."
