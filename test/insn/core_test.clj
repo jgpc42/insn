@@ -407,8 +407,8 @@
               :type (.getReturnType m)
               :anns (map #(.annotationType %) (aget (.getParameterAnnotations m) 0))})))))
 
-(deftest test-emit-seq-fn
-  (let [t {:emit-seq-fn op-map/emit-seq
+(deftest test-emit-fn
+  (let [t {:emit-fn op-map/emit-seq
            :methods [{:name :init :params []
                       :emit [{:op :aload :index 0}
                              {:op :invokespecial :class :super :name :init}

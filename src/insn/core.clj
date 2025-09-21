@@ -69,12 +69,12 @@
 
     :debug        string of arbitrary debug information - optional.
 
-    :emit-seq-fn  fn to call with each bytecode seq. This is an advanced
-                  option and, if present, will be passed both the ASM
-                  MethodVisitor and the raw (possibly nested) :emit op
-                  seq for each method. Can be used to support new op
-                  data types. For example, the `insn.op-map/emit-seq` fn
-                  can be used to enable map-style op sequences.
+    :emit-fn      fn to be called to emit method bytecode. This is an
+                  advanced option and, if present, will be passed both
+                  the ASM MethodVisitor and the raw :emit value for each
+                  method. Can be used to support new op data types. For
+                  example, the `insn.op-map/emit-seq` fn can be used to
+                  enable map-style op sequences.
 
   Each field and method can also be given :annotations and a :signature
   as per above.
@@ -200,13 +200,13 @@
                      :emit [[:aload 0]
                             [:invokespecial :super :init [:void]]
                             [:return]]}))
-        emit-seq (:emit-seq-fn t op/emit-seq)]
+        emit-fn (:emit-fn t op/emit-seq)]
     (binding [util/*this* this
               util/*super* super]
       (doseq [f (:fields t)]
         (visit-field cv f))
       (doseq [m (:methods t)]
-        (visit-method cv m emit-seq))
+        (visit-method cv m emit-fn))
       (doto cv
         (ann/visit (:annotations t))
         .visitEnd))
@@ -225,7 +225,7 @@
     (ann/visit fv (:annotations f))
     (.visitEnd fv)))
 
-(defn- visit-method [^ClassVisitor cv m emit-seq]
+(defn- visit-method [^ClassVisitor cv m emit-fn]
   (let [mname (util/method-name (:name m))
         clinit? (= mname "<clinit>")
         init? (= mname "<init>")
@@ -255,7 +255,7 @@
     (binding [util/*labels* (atom {})]
       (if (fn? emit)
         (emit mv)
-        (emit-seq mv emit)))
+        (emit-fn mv emit)))
     (ann/visit mv (:annotations m))
     (doseq [[i anns] (or (:parameter-annotations m) (:param-annotations m))]
       (ann/visit mv i anns))

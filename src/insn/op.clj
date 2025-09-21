@@ -347,7 +347,7 @@
   (.visitLookupSwitchInsn v (util/label-from default) (int-array tkeys)
                           (util/label-array tlabels)))
 
-(defn lookupswitch
+(defn ^::op lookupswitch
   "Like `lookupswitch*` with the keys and labels given as a map."
   [v default m]
   (let [[tkeys tlabels] ((juxt identity (partial map m))
@@ -416,7 +416,8 @@
       (doseq [op ops]
         (apply (::fn op) v (::args op))))))
 
-(def ^:private keyword-opcode*
+(def keyword-opcodes
+  "Map of op keyword to ASM Opcode number."
   (into {} (for [var (vals (ns-publics *ns*))
                  :let [m (meta var)]
                  :when (::op m)]
@@ -429,7 +430,7 @@
   "Return the ASM opcode number as a long for the given op keyword. If
   the keyword is invalid an error is raised."
   ^long [k]
-  (let [v (util/check-valid "op keyword" keyword-opcode* k)]
+  (let [v (util/check-valid "op keyword" keyword-opcodes k)]
     (.longValue ^Integer v)))
 
 (defn emit-seq

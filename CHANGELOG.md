@@ -6,7 +6,7 @@
 * Add support for custom index objects via the `LocalIndex` protocol
 * Generate default constructor for :abstract classes too if one not provided
 * Support passing parameter and return types separately when defining methods
-* Experimental new map compilation facilitated by `:emit-seq-fn`.
+* Experimental new map-style ops facilitated by `:emit-fn`.
 
 ## 0.5.4 (2022-04-14)
 

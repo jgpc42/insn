@@ -105,7 +105,7 @@
       {:op :areturn}
       ..."
   (fn [v op] (:op op))
-  :default ::default)
+  :default ::invalid)
 
 (defmacro ^:private defops
   ([ops mkeys]
